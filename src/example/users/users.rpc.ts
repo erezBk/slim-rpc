@@ -1,6 +1,5 @@
-import { RPC } from "../lib";
-import { User } from "./models";
-import { UsersCol } from "./users";
+import { RPC } from "../../lib";
+import { User, UsersCol } from "./users";
 
 const users_col = UsersCol([]);
 

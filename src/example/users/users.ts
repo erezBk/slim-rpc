@@ -1,13 +1,6 @@
-import { singleton } from "./fp";
-import { User } from "./models";
+import { gen_id, singleton } from "../fp";
+import { User } from "./users.model";
 
-const gen_id = (prefix: string) => {
-  let id = 1;
-  return () => {
-    id++;
-    return prefix + "_" + id;
-  };
-};
 const next_user_id = gen_id("user");
 
 interface UserDb {
@@ -30,10 +23,12 @@ export const UsersCol = singleton<User[], UserDb>((first_users) => {
   };
 
   const list = async () => Object.values(users_db);
+
   const remove = async (id: string) => {
     delete users_db[id];
     return true;
   };
+
   return {
     create,
     list,

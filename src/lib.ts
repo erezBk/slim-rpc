@@ -1,9 +1,5 @@
 import { Express } from "express";
 
-/* 
- need to have both sync and async(default) implementations
-*/
-
 let app: Express;
 let routes_to_init = [];
 

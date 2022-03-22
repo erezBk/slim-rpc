@@ -1,7 +1,7 @@
 import * as express from "express";
 import * as Rpc from "../lib";
-import "./users.rpc";
-import "./accounts.rpc";
+import "./users/users.rpc";
+import "./accounts/accounts.rpc";
 
 const PORT = +process.env.PORT || 3000;
 const app = express();

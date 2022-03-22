@@ -3,8 +3,3 @@ export interface User {
   name: string;
   age: number;
 }
-
-export interface Account {
-  id: string;
-  balance: number;
-}
