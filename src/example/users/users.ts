@@ -1,4 +1,4 @@
-import { gen_id, singleton } from "../fp";
+import { gen_id, memoize } from "../fp";
 import { User } from "./users.model";
 
 const next_user_id = gen_id("user");
@@ -9,11 +9,9 @@ interface UserDb {
   remove: (id: string) => Promise<boolean>;
 }
 
-export const UsersCol = singleton<User[], UserDb>((first_users) => {
-  const users_db: Record<string, User> = first_users.reduce((acc, user) => {
-    acc[user.id] = user;
-    return acc;
-  }, {} as Record<string, User>);
+export const UsersCol = memoize((org_id: string) => {
+  console.log("init users collection for orgId : ", org_id);
+  const users_db: Record<string, User> = {};
 
   const create = async (name: string, age: number) => {
     const id = next_user_id();
