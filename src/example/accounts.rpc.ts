@@ -1,4 +1,4 @@
-import { RPC } from "./lib";
+import { RPC } from "../lib";
 import { Account } from "./models";
 
 const accounts: Record<string, Account> = {

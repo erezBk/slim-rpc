@@ -1,5 +1,5 @@
 import * as express from "express";
-import * as Rpc from "./lib";
+import * as Rpc from "../lib";
 import "./users.rpc";
 import "./accounts.rpc";
 
