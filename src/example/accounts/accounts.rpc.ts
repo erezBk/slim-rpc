@@ -1,5 +1,5 @@
-import { RPC } from "../lib";
-import { Account } from "./models";
+import { RPC } from "../../lib";
+import { Account } from "./accounts.model";
 
 const accounts: Record<string, Account> = {
   a: {
