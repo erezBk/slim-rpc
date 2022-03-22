@@ -1,4 +1,4 @@
-import { RPC } from "./lib";
+import { RPC } from "../lib";
 import { User } from "./models";
 import { UsersCol } from "./users";
 
