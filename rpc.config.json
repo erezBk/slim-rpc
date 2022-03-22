@@ -1,0 +1,6 @@
+{
+  "src": "src",
+  "client_dir": "rpc-client",
+  "models_file": "models.ts",
+  "rpc_file_pattern_postfix": ".rpc.ts"
+}
