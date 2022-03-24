@@ -36,7 +36,6 @@ const getter_all_rpc_relevant_files = async (
   const is_file = (item) => item.endsWith(".ts");
   for (const f of files_and_folders) {
     if (is_file(f)) {
-      console.log("is_file: ", f);
       files.push(join(src_dir_path, f));
     } else {
       await getter_all_rpc_relevant_files(
@@ -75,8 +74,10 @@ const extract_rpc_fn_parts = (signature) => {
   const input_out_match = Array.from(signature.match(input_output))[0].split(
     ","
   );
+  const fn = Array.from(signature.match(fn_name) || ["?"])[0].split(".");
   return {
-    name: Array.from(signature.match(fn_name) || ["?"])[0],
+    domain: fn[0],
+    method: fn[1],
     input: input_out_match[0],
     output: input_out_match[1],
   };
@@ -84,7 +85,7 @@ const extract_rpc_fn_parts = (signature) => {
 
 const gen_rpc_fn = (fn_name, req_type, res_type) => {
   return `
-  export async function ${fn_name}(payload:${req_type}):Promise<Response<${res_type}>>{
+  async (payload:${req_type}):Promise<Response<${res_type}>> => {
        try{
            const res =  await axios.post(defaults.base_url + \`/${fn_name}\`,payload);
            return {
@@ -94,7 +95,7 @@ const gen_rpc_fn = (fn_name, req_type, res_type) => {
        }catch(e){
           return {
               success:false,
-              code:e.response.code
+              code:e.response.status
           }
        }
    }
@@ -134,26 +135,21 @@ export const defaults = {
       []
     );
 
-  console.log(
-    "rpc_fns_files, rpc_model_files ",
-    rpc_fns_files,
-    rpc_model_files
-  );
-
   const functions = [];
   for (const file_path of rpc_fns_files) {
     const code = await extract_rpc_signature(file_path); // join(__dirname, src, file_name)
     functions.push(...code.map(extract_rpc_fn_parts));
   }
 
-  console.log(functions);
-
-  let fns_as_code = [];
-
+  const functions_by_domains = {};
   for (const rpc_fn of functions) {
-    const { name, input, output } = rpc_fn;
-    const fn_as_ts_code = gen_rpc_fn(name, input, output);
-    fns_as_code.push(fn_as_ts_code);
+    const { domain, method, input, output } = rpc_fn;
+    const fn_as_ts_code = gen_rpc_fn(method, input, output);
+
+    functions_by_domains[domain] = {
+      ...(functions_by_domains[domain] || {}),
+      [method]: fn_as_ts_code,
+    };
   }
 
   const models = [];
@@ -165,8 +161,24 @@ export const defaults = {
   const file_content = `
   ${base_client_template}
   ${models.join("\n")}
-  ${fns_as_code.join("\n")}
-  `;
+  export const server = {
+  ${Object.entries(functions_by_domains)
+    .reduce((acc, [domain_name, fns]) => {
+      acc.push(`
+    ${domain_name}:{
+      ${Object.entries(fns)
+        .reduce((acc_inner, [fn_name, fn_str]) => {
+          acc_inner.push(`${fn_name}: ${fn_str}`);
+          return acc_inner;
+        }, [])
+        .join("\n,")}
+    },
+    `);
+      return acc;
+    }, [])
+    .join("\n")}
+  }
+    `;
 
   await writeFile(join(__dirname, client_dir, "rpc.client.ts"), file_content, {
     encoding: "utf-8",
