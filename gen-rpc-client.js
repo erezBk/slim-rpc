@@ -36,7 +36,6 @@ const getter_all_rpc_relevant_files = async (
   const is_file = (item) => item.endsWith(".ts");
   for (const f of files_and_folders) {
     if (is_file(f)) {
-      console.log("is_file: ", f);
       files.push(join(src_dir_path, f));
     } else {
       await getter_all_rpc_relevant_files(
@@ -103,25 +102,6 @@ const gen_rpc_fn = (fn_name, req_type, res_type) => {
     `;
 };
 
-/* const gen_rpc_fn = (fn_name, req_type, res_type) => {
-  return `
-  export async function ${fn_name}(payload:${req_type}):Promise<Response<${res_type}>>{
-       try{
-           const res =  await axios.post(defaults.base_url + \`/${fn_name}\`,payload);
-           return {
-               success:true,
-               value:res.data
-           }
-       }catch(e){
-          return {
-              success:false,
-              code:e.response.status
-          }
-       }
-   }
-    `;
-}; */
-
 let base_client_template = `
 import axios from 'axios';
   
@@ -155,21 +135,12 @@ export const defaults = {
       []
     );
 
-  console.log(
-    "rpc_fns_files, rpc_model_files ",
-    rpc_fns_files,
-    rpc_model_files
-  );
-
   const functions = [];
   for (const file_path of rpc_fns_files) {
     const code = await extract_rpc_signature(file_path); // join(__dirname, src, file_name)
     functions.push(...code.map(extract_rpc_fn_parts));
   }
 
-  console.log(functions);
-
-  // let fns_as_code = [];
   const functions_by_domains = {};
   for (const rpc_fn of functions) {
     const { domain, method, input, output } = rpc_fn;
@@ -179,8 +150,6 @@ export const defaults = {
       ...(functions_by_domains[domain] || {}),
       [method]: fn_as_ts_code,
     };
-
-    //  fns_as_code.push(fn_as_ts_code);
   }
 
   const models = [];
