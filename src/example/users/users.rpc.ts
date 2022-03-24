@@ -2,7 +2,7 @@ import { RPC } from "../../lib";
 import { User } from "./users.model";
 
 const list_users = RPC<void, User[]>(
-  "list_users",
+  "users.list",
   async (_, { services, req }) => {
     console.log("making a call to list_users : ", req.headers);
     const users_col = await services.users();
@@ -12,7 +12,7 @@ const list_users = RPC<void, User[]>(
 );
 
 const update_user = RPC<User, User[]>(
-  "update_user",
+  "users.update",
   async ({ age, name }, { services }) => {
     const users_col = await services.users();
     await users_col.create(name, age);
@@ -22,7 +22,7 @@ const update_user = RPC<User, User[]>(
 );
 
 const create_user = RPC<{ name: string; age: number }, User[]>(
-  "create_user",
+  "users.create",
   async ({ age, name }, { services }) => {
     const users_col = await services.users();
     await users_col.create(name, age);
@@ -32,7 +32,7 @@ const create_user = RPC<{ name: string; age: number }, User[]>(
 );
 
 const remove_user = RPC<{ id: string }, User[]>(
-  "remove_user",
+  "users.remove",
   async ({ id }, { services }) => {
     const users_col = await services.users();
     await users_col.remove(id);

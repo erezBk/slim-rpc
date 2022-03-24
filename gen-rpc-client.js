@@ -75,14 +75,35 @@ const extract_rpc_fn_parts = (signature) => {
   const input_out_match = Array.from(signature.match(input_output))[0].split(
     ","
   );
+  const fn = Array.from(signature.match(fn_name) || ["?"])[0].split(".");
   return {
-    name: Array.from(signature.match(fn_name) || ["?"])[0],
+    domain: fn[0],
+    method: fn[1],
     input: input_out_match[0],
     output: input_out_match[1],
   };
 };
 
 const gen_rpc_fn = (fn_name, req_type, res_type) => {
+  return `
+  async (payload:${req_type}):Promise<Response<${res_type}>> => {
+       try{
+           const res =  await axios.post(defaults.base_url + \`/${fn_name}\`,payload);
+           return {
+               success:true,
+               value:res.data
+           }
+       }catch(e){
+          return {
+              success:false,
+              code:e.response.status
+          }
+       }
+   }
+    `;
+};
+
+/* const gen_rpc_fn = (fn_name, req_type, res_type) => {
   return `
   export async function ${fn_name}(payload:${req_type}):Promise<Response<${res_type}>>{
        try{
@@ -99,7 +120,7 @@ const gen_rpc_fn = (fn_name, req_type, res_type) => {
        }
    }
     `;
-};
+}; */
 
 let base_client_template = `
 import axios from 'axios';
@@ -148,12 +169,18 @@ export const defaults = {
 
   console.log(functions);
 
-  let fns_as_code = [];
-
+  // let fns_as_code = [];
+  const functions_by_domains = {};
   for (const rpc_fn of functions) {
-    const { name, input, output } = rpc_fn;
-    const fn_as_ts_code = gen_rpc_fn(name, input, output);
-    fns_as_code.push(fn_as_ts_code);
+    const { domain, method, input, output } = rpc_fn;
+    const fn_as_ts_code = gen_rpc_fn(method, input, output);
+
+    functions_by_domains[domain] = {
+      ...(functions_by_domains[domain] || {}),
+      [method]: fn_as_ts_code,
+    };
+
+    //  fns_as_code.push(fn_as_ts_code);
   }
 
   const models = [];
@@ -165,8 +192,24 @@ export const defaults = {
   const file_content = `
   ${base_client_template}
   ${models.join("\n")}
-  ${fns_as_code.join("\n")}
-  `;
+  export const server = {
+  ${Object.entries(functions_by_domains)
+    .reduce((acc, [domain_name, fns]) => {
+      acc.push(`
+    ${domain_name}:{
+      ${Object.entries(fns)
+        .reduce((acc_inner, [fn_name, fn_str]) => {
+          acc_inner.push(`${fn_name}: ${fn_str}`);
+          return acc_inner;
+        }, [])
+        .join("\n,")}
+    },
+    `);
+      return acc;
+    }, [])
+    .join("\n")}
+  }
+    `;
 
   await writeFile(join(__dirname, client_dir, "rpc.client.ts"), file_content, {
     encoding: "utf-8",
