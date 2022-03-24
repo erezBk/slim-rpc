@@ -94,7 +94,7 @@ const gen_rpc_fn = (fn_name, req_type, res_type) => {
        }catch(e){
           return {
               success:false,
-              code:e.response.code
+              code:e.response.status
           }
        }
    }

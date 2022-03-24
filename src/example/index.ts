@@ -3,6 +3,7 @@ import * as Rpc from "../lib";
 import "./users/users.rpc";
 import "./accounts/accounts.rpc";
 import { UsersCol } from "./users/users";
+import { ui } from "./users/users.view";
 
 const PORT = +process.env.PORT || 3000;
 const app = express();
@@ -17,6 +18,11 @@ Rpc.init(app, async (req) => {
       },
     },
   };
+});
+
+app.get("/users", async (req, res) => {
+  const result = await ui(req.headers["org-id"] as string);
+  res.send(result);
 });
 
 app.listen(PORT, async () => {
