@@ -1,22 +1,24 @@
-// @ts-check
 const {
   readFile,
   writeFile,
   readdir,
+  unlinkSync,
   mkdirp,
   pathExists,
 } = require("fs-extra");
 const { join } = require("path");
 
+const root = join(__dirname, "../");
+
 const read_config = async () => {
-  const config = await readFile(join(__dirname, "rpc.config.json"), {
+  const config = await readFile(join(root, "rpc.config.json"), {
     encoding: "utf-8",
   });
   return JSON.parse(config);
 };
 
 const make_client_dir = async (path) => {
-  const client_dir_path = join(__dirname, path);
+  const client_dir_path = join(root, path);
   const is_client_dir_exist = await pathExists(client_dir_path);
   if (!is_client_dir_exist) {
     await mkdirp(client_dir_path);
@@ -31,7 +33,7 @@ const getter_all_rpc_relevant_files = async (
   rpc_model_pattern_postfix,
   files = []
 ) => {
-  const src_path = join(__dirname, src_dir_path);
+  const src_path = join(root, src_dir_path);
   const files_and_folders = await readdir(src_path, { encoding: "utf-8" });
   const is_file = (item) => item.endsWith(".ts");
   for (const f of files_and_folders) {
@@ -83,44 +85,15 @@ const extract_rpc_fn_parts = (signature) => {
   };
 };
 
-const gen_rpc_fn = (fn_name, req_type, res_type) => {
-  return `
-  async (payload:${req_type}):Promise<Response<${res_type}>> => {
-       try{
-           const res =  await axios.post(defaults.base_url + \`/${fn_name}\`,payload);
-           return {
-               success:true,
-               value:res.data
-           }
-       }catch(e){
-          return {
-              success:false,
-              code:e.response.status
-          }
-       }
-   }
-    `;
+const gen_rpc_fn = (domain, fn_name, req_type, res_type) => {
+  return `create_request<${req_type},${res_type}>("${domain}","${fn_name}") `;
 };
 
-let base_client_template = `
-import axios from 'axios';
-  
-interface SuccessResponse<T>{
-  success:true,
-  value:T
-}
-
-interface ErrorResponse{
-  success:false,
-  code:number
-}
-
-export type Response<T> = SuccessResponse<T> | ErrorResponse
-
-export const defaults = {
-   base_url:""
-}
-`;
+const get_base_client_template = async () => {
+  return await readFile(join(__dirname, "client.template.ts"), {
+    encoding: "utf-8",
+  });
+};
 
 (async () => {
   const { src, client_dir, rpc_file_postfix, models_file_postfix } =
@@ -137,14 +110,14 @@ export const defaults = {
 
   const functions = [];
   for (const file_path of rpc_fns_files) {
-    const code = await extract_rpc_signature(file_path); // join(__dirname, src, file_name)
+    const code = await extract_rpc_signature(file_path);
     functions.push(...code.map(extract_rpc_fn_parts));
   }
 
   const functions_by_domains = {};
   for (const rpc_fn of functions) {
     const { domain, method, input, output } = rpc_fn;
-    const fn_as_ts_code = gen_rpc_fn(method, input, output);
+    const fn_as_ts_code = gen_rpc_fn(domain, method, input, output);
 
     functions_by_domains[domain] = {
       ...(functions_by_domains[domain] || {}),
@@ -157,7 +130,7 @@ export const defaults = {
     const model_code = await readFile(model_file_path, { encoding: "utf-8" });
     models.push(model_code);
   }
-
+  const base_client_template = await get_base_client_template();
   const file_content = `
   ${base_client_template}
   ${models.join("\n")}
@@ -180,7 +153,7 @@ export const defaults = {
   }
     `;
 
-  await writeFile(join(__dirname, client_dir, "rpc.client.ts"), file_content, {
+  await writeFile(join(root, client_dir, "rpc.client.ts"), file_content, {
     encoding: "utf-8",
   });
 })();
