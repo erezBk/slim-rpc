@@ -23,7 +23,7 @@ declare module "slim-rpc"{
 ```
 
 # TODO:
-I need to bring the client generation code into the lib folder so that it could be generated 
+1. I need to bring the client generation code into the lib folder so that it could be generated 
 by the clients using "slim-rpc generate-client" command 
 
-So how do I make my code listen to commands like this "slim-rpc something" ? 
+So how do I make my code listen to commands like this "slim-rpc something" ?

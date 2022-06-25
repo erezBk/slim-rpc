@@ -14,15 +14,16 @@ const rpc_client_path = path.join(
 let app: Express;
 let routes_to_init = [];
 let port_number = 0;
-export const init = <S>(
-  instance: Express,
-  port: number,
-  ctx: (req: Request) => Promise<Context>
-) => {
+export const init = <S>(params: {
+  express_app: Express;
+  port: number;
+  create_context: (req: Request) => Promise<Context>;
+}) => {
+  const { create_context, express_app, port } = params;
   port_number = port;
-  app = instance;
+  app = express_app;
   app.use(async (req, _, next) => {
-    const req_context = await ctx(req);
+    const req_context = await create_context(req);
     req["req_context"] = req_context;
     next();
   });
@@ -36,14 +37,19 @@ export const init = <S>(
 
 export const RPC = <IN, OUT>(
   name: string,
+  validate_input: (body: any) => boolean,
   fn: (input: IN, ctx: RequestContext) => Promise<OUT>
 ) => {
   const add_route = () => {
     app.post("/" + name, async (req, res) => {
       const input = req.body;
-      console.log("input : ", input);
-      const result = await fn(input, { req, context: req["req_context"] });
-      res.json(result);
+      if (validate_input(input)) {
+        console.log("input : ", input);
+        const result = await fn(input, { req, context: req["req_context"] });
+        res.json(result);
+      } else {
+        res.status(400).send("bad input!");
+      }
     });
   };
   if (app) {

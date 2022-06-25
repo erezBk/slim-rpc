@@ -28,3 +28,5 @@ export const memoize = <IN, OUT>(fn: (input: IN) => OUT) => {
     return product;
   };
 };
+
+export const has_prop = (prop: string) => (obj: any) => prop in obj;
