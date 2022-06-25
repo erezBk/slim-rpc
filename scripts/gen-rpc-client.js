@@ -125,6 +125,22 @@ const get_base_client_template = async () => {
     };
   }
 
+  const generated_functions_per_domain = Object.entries(functions_by_domains)
+    .reduce((acc, [domain_name, fns]) => {
+      acc.push(`
+  ${domain_name}:{
+    ${Object.entries(fns)
+      .reduce((acc_inner, [fn_name, fn_str]) => {
+        acc_inner.push(`${fn_name}: ${fn_str}`);
+        return acc_inner;
+      }, [])
+      .join("\n,")}
+  },
+  `);
+      return acc;
+    }, [])
+    .join("\n");
+
   const models = [];
   for (const model_file_path of rpc_model_files) {
     const model_code = await readFile(model_file_path, { encoding: "utf-8" });
@@ -132,25 +148,8 @@ const get_base_client_template = async () => {
   }
   const base_client_template = await get_base_client_template();
   const file_content = `
-  ${base_client_template}
   ${models.join("\n")}
-  export const server = {
-  ${Object.entries(functions_by_domains)
-    .reduce((acc, [domain_name, fns]) => {
-      acc.push(`
-    ${domain_name}:{
-      ${Object.entries(fns)
-        .reduce((acc_inner, [fn_name, fn_str]) => {
-          acc_inner.push(`${fn_name}: ${fn_str}`);
-          return acc_inner;
-        }, [])
-        .join("\n,")}
-    },
-    `);
-      return acc;
-    }, [])
-    .join("\n")}
-  }
+  ${base_client_template.replace("//#CODE", generated_functions_per_domain)}
     `;
 
   await writeFile(join(root, client_dir, "rpc.client.ts"), file_content, {

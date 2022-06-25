@@ -9,7 +9,7 @@ const PORT = +process.env.PORT || 3000;
 const app = express();
 app.use(express.json());
 
-Rpc.init(app, async (req) => {
+Rpc.init(app, PORT, async (req) => {
   return {
     services: {
       users: async () => {
