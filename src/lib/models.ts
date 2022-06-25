@@ -1,12 +1,12 @@
 import { Request } from "express";
 
-export interface ContextServices {
+export interface Context {
   [key: string]: any;
 }
 
-export interface Context {
+export interface RequestContext {
   req: Request;
-  services: ContextServices;
+  context: Context;
 }
 
 interface SuccessResponse<T> {

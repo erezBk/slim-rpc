@@ -1,6 +1,6 @@
 import { Express, Request } from "express";
 import axios, { AxiosError } from "axios";
-import { Context, Response } from "./models";
+import { Context, RequestContext, Response } from "./models";
 import * as path from "path";
 
 const rpc_client_path = path.join(
@@ -17,13 +17,13 @@ let port_number = 0;
 export const init = <S>(
   instance: Express,
   port: number,
-  ctx: (req: Request) => Promise<{ services: S }>
+  ctx: (req: Request) => Promise<Context>
 ) => {
   port_number = port;
   app = instance;
   app.use(async (req, _, next) => {
-    const { services } = await ctx(req);
-    req["services"] = services;
+    const req_context = await ctx(req);
+    req["req_context"] = req_context;
     next();
   });
   app.get("/gen-client", (req, res) => {
@@ -36,13 +36,13 @@ export const init = <S>(
 
 export const RPC = <IN, OUT>(
   name: string,
-  fn: (input: IN, ctx: Context) => Promise<OUT>
+  fn: (input: IN, ctx: RequestContext) => Promise<OUT>
 ) => {
   const add_route = () => {
     app.post("/" + name, async (req, res) => {
       const input = req.body;
       console.log("input : ", input);
-      const result = await fn(input, { req, services: req["services"] });
+      const result = await fn(input, { req, context: req["req_context"] });
       res.json(result);
     });
   };

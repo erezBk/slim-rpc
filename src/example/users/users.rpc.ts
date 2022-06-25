@@ -3,9 +3,9 @@ import { User } from "./users.model";
 
 const list_users = RPC<void, User[]>(
   "users.list",
-  async (_, { services, req }) => {
+  async (_, { context, req }) => {
     console.log("making a call to list_users : ", req.headers);
-    const users_col = await services.users();
+    const users_col = await context.services.users();
     const users = await users_col.list();
     return users;
   }
@@ -13,8 +13,8 @@ const list_users = RPC<void, User[]>(
 
 const update_user = RPC<User, User[]>(
   "users.update",
-  async ({ age, name }, { services }) => {
-    const users_col = await services.users();
+  async ({ age, name }, { context }) => {
+    const users_col = await context.services.users();
     await users_col.create(name, age);
     const users_state = await users_col.list();
     return users_state;
@@ -23,8 +23,8 @@ const update_user = RPC<User, User[]>(
 
 const create_user = RPC<{ name: string; age: number }, User[]>(
   "users.create",
-  async ({ age, name }, { services }) => {
-    const users_col = await services.users();
+  async ({ age, name }, { context }) => {
+    const users_col = await context.services.users();
     await users_col.create(name, age);
     const users_state = await users_col.list();
     return users_state;
@@ -33,8 +33,8 @@ const create_user = RPC<{ name: string; age: number }, User[]>(
 
 const remove_user = RPC<{ id: string }, User[]>(
   "users.remove",
-  async ({ id }, { services }) => {
-    const users_col = await services.users();
+  async ({ id }, { context }) => {
+    const users_col = await context.services.users();
     await users_col.remove(id);
     const users = await users_col.list();
     return users;
