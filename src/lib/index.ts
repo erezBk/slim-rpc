@@ -1,6 +1,11 @@
 import { Express, Request } from "express";
 import axios, { AxiosError } from "axios";
-import { Context, RequestContext, Response } from "./models";
+import {
+  RpcContext,
+  RpcRequestContext,
+  RpcResponse,
+  InputValidationFn,
+} from "./models";
 import * as path from "path";
 
 const rpc_client_path = path.join(
@@ -17,7 +22,7 @@ let port_number = 0;
 export const init = <S>(params: {
   express_app: Express;
   port: number;
-  create_context: (req: Request) => Promise<Context>;
+  create_context: (req: Request) => Promise<RpcContext>;
 }) => {
   const { create_context, express_app, port } = params;
   port_number = port;
@@ -37,13 +42,14 @@ export const init = <S>(params: {
 
 export const RPC = <IN, OUT>(
   name: string,
-  validate_input: (body: any) => boolean,
-  fn: (input: IN, ctx: RequestContext) => Promise<OUT>
+  validate_input: InputValidationFn,
+  fn: (input: IN, ctx: RpcRequestContext) => Promise<OUT>
 ) => {
   const add_route = () => {
     app.post("/" + name, async (req, res) => {
       const input = req.body;
-      if (validate_input(input)) {
+      const is_valid = await validate_input(input);
+      if (is_valid) {
         console.log("input : ", input);
         try {
           const result = await fn(input, { req, context: req["req_context"] });
@@ -65,7 +71,7 @@ export const RPC = <IN, OUT>(
 
   const client_fn =
     (headers: Record<string, string>) =>
-    async (input: IN): Promise<Response<OUT>> => {
+    async (input: IN): Promise<RpcResponse<OUT>> => {
       try {
         const res = await axios.post(
           `http://localhost:${port_number}/` + name,
