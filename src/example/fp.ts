@@ -30,3 +30,5 @@ export const memoize = <IN, OUT>(fn: (input: IN) => OUT) => {
 };
 
 export const has_prop = (prop: string) => (obj: any) => prop in obj;
+
+export const to_unary = (fn) => (arg) => fn(arg);

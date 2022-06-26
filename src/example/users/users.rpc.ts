@@ -1,8 +1,15 @@
 import { RPC } from "../../lib";
-import { has_prop } from "../fp";
+import { has_prop, to_unary } from "../fp";
 import { User } from "./users.model";
+import * as joi from "joi";
 
-const is_valid_user = (user) => user.age && user.name;
+const user_scheme = joi.object({
+  name: joi.string().required(),
+  age: joi.number().integer().min(0).max(100).required(),
+});
+
+const is_valid_user = to_unary(user_scheme.validate);
+
 const always_valid = () => true;
 
 const list_users = RPC<void, User[]>(

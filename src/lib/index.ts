@@ -45,8 +45,13 @@ export const RPC = <IN, OUT>(
       const input = req.body;
       if (validate_input(input)) {
         console.log("input : ", input);
-        const result = await fn(input, { req, context: req["req_context"] });
-        res.json(result);
+        try {
+          const result = await fn(input, { req, context: req["req_context"] });
+          res.json(result);
+        } catch (error) {
+          const { message } = error as Error;
+          res.status(500).send(message);
+        }
       } else {
         res.status(400).send("bad input!");
       }
