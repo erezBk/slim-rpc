@@ -8,6 +8,10 @@ const accounts: Record<string, Account> = {
   },
 };
 
-RPC<{ id: string }, Account>("accounts.get_by_id", async ({ id }) => {
-  return accounts[id];
-});
+RPC<{ id: string }, Account>(
+  "accounts.get_by_id",
+  () => true,
+  async ({ id }) => {
+    return accounts[id];
+  }
+);

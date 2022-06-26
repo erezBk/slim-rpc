@@ -9,15 +9,19 @@ const PORT = +process.env.PORT || 3000;
 const app = express();
 app.use(express.json());
 
-Rpc.init(app, async (req) => {
-  return {
-    services: {
-      users: async () => {
-        const col_name = "users_" + req.headers["org-id"];
-        return UsersCol(col_name);
+Rpc.init({
+  express_app: app,
+  port: PORT,
+  create_context: async (req) => {
+    return {
+      services: {
+        users: async () => {
+          const col_name = "users_" + req.headers["org-id"];
+          return UsersCol(col_name);
+        },
       },
-    },
-  };
+    };
+  },
 });
 
 app.get("/users", async (req, res) => {
