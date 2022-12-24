@@ -2,7 +2,7 @@ import { users_api } from "./users.rpc";
 
 export const ui = async (org_id: string) => {
   const api = users_api({ ["org-id"]: org_id });
-  const res = await api.list();
+  const res = await api.list({ count: 2 });
   if (res.success) {
     console.log("res.value : ", res.value);
     return `<html>

@@ -35,6 +35,21 @@ export const init = <S>(params: {
   app.get("/gen-client", (req, res) => {
     res.sendFile(rpc_client_path);
   });
+
+  app.get("/routes", (req, res, next) => {
+    const table = [];
+    const routes = req.app._router.stack;
+    for (const key in routes) {
+      if (routes.hasOwnProperty(key)) {
+        let val = routes[key];
+        if (val.route) {
+          val = val.route;
+          table.push(`${val.stack[0].method} : ${val.path}`);
+        }
+      }
+    }
+    res.json(table);
+  });
   if (routes_to_init.length > 0) {
     routes_to_init.forEach((fn) => fn());
   }
@@ -73,6 +88,7 @@ export const RPC = <IN, OUT>(
     (headers: Record<string, string>) =>
     async (input: IN): Promise<RpcResponse<OUT>> => {
       try {
+        // TODO: use app._router to call the route
         const res = await axios.post(
           `http://localhost:${port_number}/` + name,
           input,

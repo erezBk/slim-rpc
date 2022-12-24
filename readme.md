@@ -1,5 +1,7 @@
 # slim-rpc
-
+## Like Libs
+- https://github.com/phero-hq/phero
+- 
 ## Why should I use this ?
 - thinking purely on business logic instead on conventions like http methods / headers etc in both client and server.
 - writing simple input-output functions instead of routes

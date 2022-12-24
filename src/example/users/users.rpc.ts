@@ -12,14 +12,13 @@ const is_valid_user = to_unary(user_scheme.validate);
 
 const always_valid = () => true;
 
-const list_users = RPC<void, User[]>(
+const list_users = RPC<{ count: number }, User[]>(
   "users.list",
   always_valid,
-  async (_, { context, req }) => {
-    console.log("making a call to list_users : ", req.headers);
+  async ({ count }, { context, req }) => {
     const users_col = await context.services.users();
     const users = await users_col.list();
-    return users;
+    return users.slice(0, count);
   }
 );
 

@@ -4,10 +4,10 @@ import "./users/users.rpc";
 import "./accounts/accounts.rpc";
 import { UsersCol } from "./users/users";
 import { ui } from "./users/users.view";
-
-const PORT = +process.env.PORT || 3000;
+import * as cors from "cors";
+const PORT = +process.env.PORT || 3001;
 const app = express();
-app.use(express.json());
+app.use(cors()).use(express.json());
 
 Rpc.init({
   express_app: app,
@@ -30,5 +30,5 @@ app.get("/users", async (req, res) => {
 });
 
 app.listen(PORT, async () => {
-  console.log("init services before listening ....");
+  console.log("init services before listening .... running on port ", PORT);
 });

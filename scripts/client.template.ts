@@ -88,7 +88,7 @@ export const server = {
       ...options,
     };
   },
-  abort(...call_names) {
+  abort(...call_names: string[]) {
     switch (true) {
       case call_names.length === 0:
         console.warn("you called server.abort() with 0 args");
