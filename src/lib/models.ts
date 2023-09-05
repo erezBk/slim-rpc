@@ -11,7 +11,7 @@ export interface RpcContext {
 }
 
 export interface RpcRequestContext {
-  req: Request;
+  //req: Request;
   context: RpcContext;
 }
 
@@ -27,6 +27,6 @@ interface RpcErrorResponse {
 
 export type RpcResponse<T> = RpcSuccessResponse<T> | RpcErrorResponse;
 
-export type InputValidationFn =
-  | ((body: any) => boolean)
-  | ((body: any) => Promise<boolean>);
+export type InputValidationFn<IN> =
+  | ((body: IN) => boolean)
+  | ((body: IN) => Promise<boolean>);

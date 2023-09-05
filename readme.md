@@ -29,3 +29,9 @@ declare module "slim-rpc"{
 by the clients using "slim-rpc generate-client" command 
 
 So how do I make my code listen to commands like this "slim-rpc something" ?
+
+
+
+## HOW
+to create code that like trpc enables me to just share the types
+between server and client  without the need to generate code ? 

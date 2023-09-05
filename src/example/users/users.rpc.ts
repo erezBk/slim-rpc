@@ -10,19 +10,17 @@ const user_scheme = joi.object({
 
 const is_valid_user = to_unary(user_scheme.validate);
 
-const always_valid = () => true;
-
-const list_users = RPC<{ count: number }, User[]>(
+RPC<{ count: number }, User[]>(
   "users.list",
-  always_valid,
-  async ({ count }, { context, req }) => {
+  ({ count }) => count > 6,
+  async ({ count }, { context }) => {
     const users_col = await context.services.users();
     const users = await users_col.list();
     return users.slice(0, count);
   }
 );
 
-const update_user = RPC<User, User[]>(
+RPC<User, User[]>(
   "users.update",
   is_valid_user,
   async ({ age, name }, { context }) => {
@@ -33,7 +31,7 @@ const update_user = RPC<User, User[]>(
   }
 );
 
-const create_user = RPC<{ name: string; age: number }, User[]>(
+const create = RPC<{ name: string; age: number }, User[]>(
   "users.create",
   is_valid_user,
   async ({ age, name }, { context }) => {
@@ -44,7 +42,7 @@ const create_user = RPC<{ name: string; age: number }, User[]>(
   }
 );
 
-const remove_user = RPC<{ id: string }, User[]>(
+RPC<{ id: string }, User[]>(
   "users.remove",
   has_prop("id"),
   async ({ id }, { context }) => {
@@ -55,9 +53,6 @@ const remove_user = RPC<{ id: string }, User[]>(
   }
 );
 
-export const users_api = (headers: Record<string, string>) => ({
-  remove: remove_user(headers),
-  create: create_user(headers),
-  list: list_users(headers),
-  update: update_user(headers),
-});
+export const UsersTests = {
+  create,
+};

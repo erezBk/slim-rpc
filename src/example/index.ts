@@ -3,8 +3,8 @@ import * as Rpc from "../lib";
 import "./users/users.rpc";
 import "./accounts/accounts.rpc";
 import { UsersCol } from "./users/users";
-import { ui } from "./users/users.view";
 import * as cors from "cors";
+
 const PORT = +process.env.PORT || 3001;
 const app = express();
 app.use(cors()).use(express.json());
@@ -14,6 +14,7 @@ Rpc.init({
   port: PORT,
   create_context: async (req) => {
     return {
+      user: { id: "1" },
       services: {
         users: async () => {
           const col_name = "users_" + req.headers["org-id"];
@@ -22,11 +23,6 @@ Rpc.init({
       },
     };
   },
-});
-
-app.get("/users", async (req, res) => {
-  const result = await ui(req.headers["org-id"] as string);
-  res.send(result);
 });
 
 app.listen(PORT, async () => {

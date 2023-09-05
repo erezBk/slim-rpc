@@ -57,7 +57,7 @@ export const init = <S>(params: {
 
 export const RPC = <IN, OUT>(
   name: string,
-  validate_input: InputValidationFn,
+  validate_input: InputValidationFn<IN>,
   fn: (input: IN, ctx: RpcRequestContext) => Promise<OUT>
 ) => {
   const add_route = () => {
@@ -67,7 +67,9 @@ export const RPC = <IN, OUT>(
       if (is_valid) {
         console.log("input : ", input);
         try {
-          const result = await fn(input, { req, context: req["req_context"] });
+          const result = await fn(input, {
+            /* req, */ context: req["req_context"],
+          });
           res.json(result);
         } catch (error) {
           const { message } = error as Error;
@@ -84,30 +86,5 @@ export const RPC = <IN, OUT>(
     routes_to_init.push(add_route);
   }
 
-  const client_fn =
-    (headers: Record<string, string>) =>
-    async (input: IN): Promise<RpcResponse<OUT>> => {
-      try {
-        // TODO: use app._router to call the route
-        const res = await axios.post(
-          `http://localhost:${port_number}/` + name,
-          input,
-          {
-            headers,
-          }
-        );
-        return {
-          success: true,
-          value: res.data,
-        };
-      } catch (e) {
-        const error: AxiosError = e;
-        return {
-          success: false,
-          code: error.response.status,
-        };
-      }
-    };
-
-  return client_fn;
+  return fn;
 };
