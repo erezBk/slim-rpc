@@ -10,7 +10,7 @@ const user_scheme = joi.object({
 
 const is_valid_user = to_unary(user_scheme.validate);
 
-RPC<{ count: number }, User[]>(
+const list = RPC<{ count: number }, User[]>(
   "users.list",
   ({ count }) => count > 6,
   async ({ count }, { context }) => {
@@ -20,7 +20,7 @@ RPC<{ count: number }, User[]>(
   }
 );
 
-RPC<User, User[]>(
+const update = RPC<User, User[]>(
   "users.update",
   is_valid_user,
   async ({ age, name }, { context }) => {
@@ -42,7 +42,7 @@ const create = RPC<{ name: string; age: number }, User[]>(
   }
 );
 
-RPC<{ id: string }, User[]>(
+const remove = RPC<{ id: string }, User[]>(
   "users.remove",
   has_prop("id"),
   async ({ id }, { context }) => {
@@ -52,6 +52,13 @@ RPC<{ id: string }, User[]>(
     return users;
   }
 );
+
+export const users = {
+  list,
+  update,
+  create,
+  remove,
+};
 
 export const UsersTests = {
   create,

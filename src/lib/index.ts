@@ -1,55 +1,30 @@
 import { Express, Request } from "express";
-import axios, { AxiosError } from "axios";
-import {
-  RpcContext,
-  RpcRequestContext,
-  RpcResponse,
-  InputValidationFn,
-} from "./models";
-import * as path from "path";
-
-const rpc_client_path = path.join(
-  __dirname,
-  "..",
-  "..",
-  "rpc-client",
-  "rpc.client.ts"
-);
+import { RpcContext, RpcRequestContext, InputValidationFn } from "./models";
 
 let app: Express;
 let routes_to_init = [];
 let port_number = 0;
-export const init = <S>(params: {
+
+export const init = <T>(params: {
   express_app: Express;
   port: number;
   create_context: (req: Request) => Promise<RpcContext>;
+  routes: T;
 }) => {
-  const { create_context, express_app, port } = params;
+  const { create_context, express_app, port, routes } = params;
   port_number = port;
   app = express_app;
+
+  app.get("/scheme", (req, res) => {
+    res.json(routes);
+  });
+
   app.use(async (req, _, next) => {
     const req_context = await create_context(req);
     req["req_context"] = req_context;
     next();
   });
-  app.get("/gen-client", (req, res) => {
-    res.sendFile(rpc_client_path);
-  });
 
-  app.get("/routes", (req, res, next) => {
-    const table = [];
-    const routes = req.app._router.stack;
-    for (const key in routes) {
-      if (routes.hasOwnProperty(key)) {
-        let val = routes[key];
-        if (val.route) {
-          val = val.route;
-          table.push(`${val.stack[0].method} : ${val.path}`);
-        }
-      }
-    }
-    res.json(table);
-  });
   if (routes_to_init.length > 0) {
     routes_to_init.forEach((fn) => fn());
   }
@@ -59,7 +34,7 @@ export const RPC = <IN, OUT>(
   name: string,
   validate_input: InputValidationFn<IN>,
   fn: (input: IN, ctx: RpcRequestContext) => Promise<OUT>
-) => {
+): { query: (input: IN) => Promise<OUT> } => {
   const add_route = () => {
     app.post("/" + name, async (req, res) => {
       const input = req.body;
@@ -85,6 +60,8 @@ export const RPC = <IN, OUT>(
   } else {
     routes_to_init.push(add_route);
   }
-
-  return fn;
+  return {
+    // @ts-ignore
+    query: name,
+  };
 };
