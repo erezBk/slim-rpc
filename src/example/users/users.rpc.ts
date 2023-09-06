@@ -31,14 +31,13 @@ const update = RPC<User, User[]>(
   }
 );
 
-const create = RPC<{ name: string; age: number }, User[]>(
+const create = RPC<{ name: string; age: number }, { id: string }>(
   "users.create",
-  is_valid_user,
+  () => true,
   async ({ age, name }, { context }) => {
     const users_col = await context.services.users();
-    await users_col.create(name, age);
-    const users_state = await users_col.list();
-    return users_state;
+    const id = await users_col.create(name, age);
+    return { id };
   }
 );
 

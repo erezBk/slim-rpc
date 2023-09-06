@@ -59,7 +59,7 @@ export const create_client = <T>(base_url: string): T => {
   // @ts-ignore
   const client_proxy: T = new Proxy(client, proxy_handler([]));
   (async () => {
-    const res = await axios.get(base_url + "/scheme");
+    const res = await axios.get(base_url + "/slim-rpc-scheme");
     const api_scheme = res.data;
     client = parse_scheme(api_scheme);
     is_ready = true;

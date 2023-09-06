@@ -15,7 +15,8 @@ export const init = <T>(params: {
   port_number = port;
   app = express_app;
 
-  app.get("/scheme", (req, res) => {
+  // route for client to get the slim-rpc scheme
+  app.get("/slim-rpc-scheme", (req, res) => {
     res.json(routes);
   });
 
@@ -40,10 +41,9 @@ export const RPC = <IN, OUT>(
       const input = req.body;
       const is_valid = await validate_input(input);
       if (is_valid) {
-        console.log("input : ", input);
         try {
           const result = await fn(input, {
-            /* req, */ context: req["req_context"],
+            context: req["req_context"],
           });
           res.json(result);
         } catch (error) {

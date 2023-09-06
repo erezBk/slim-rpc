@@ -11,7 +11,7 @@ export interface UserDb {
 
 export const UsersCol = memoize((org_id: string) => {
   console.log("init users collection for orgId : ", org_id);
-  const users_db: Record<string, User> = Array(100)
+  const users_db: Record<string, User> = Array(10)
     .fill({})
     .map((_, index) => {
       return {
