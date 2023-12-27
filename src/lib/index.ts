@@ -1,5 +1,10 @@
 import { Express, Request } from "express";
-import { RpcContext, RpcRequestContext, InputValidationFn } from "./models";
+import {
+  RpcContext,
+  RpcRequestContext,
+  InputValidationFn,
+  RpcResponse,
+} from "./models";
 
 let app: Express;
 let routes_to_init = [];
@@ -35,23 +40,34 @@ export const RPC = <IN, OUT>(
   name: string,
   validate_input: InputValidationFn<IN>,
   fn: (input: IN, ctx: RpcRequestContext) => Promise<OUT>
-): { query: (input: IN) => Promise<OUT> } => {
+): { query: (input: IN) => Promise<RpcResponse<OUT>> } => {
   const add_route = () => {
     app.post("/" + name, async (req, res) => {
       const input = req.body;
       const is_valid = await validate_input(input);
       if (is_valid) {
         try {
-          const result = await fn(input, {
+          const value = await fn(input, {
             ctx: req["req_context"],
           });
-          res.json(result);
+          res.json({
+            type: "success",
+            value,
+          });
         } catch (error) {
           const { message } = error as Error;
-          res.status(500).send(message);
+          res.json({
+            type: "error",
+            code: 500,
+            reason: message,
+          });
         }
       } else {
-        res.status(400).send("bad input!");
+        res.json({
+          type: "error",
+          code: 400,
+          reason: "bad input",
+        });
       }
     });
   };
