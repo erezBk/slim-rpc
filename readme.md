@@ -8,7 +8,11 @@ and to learn from the experience...
 
 I'm using it for my projects and U can too. <br>
 It just works and there is so little code<br>
-it's **under 230 lines of code!**
+it's **under 250 lines of code!**
 It's slim :)
 
-enjoy :partying_face:
+the library comes with adapters for express, koa & fastify <br>
+but you can also create an adapter of your own by implementing **WebFramework** <br>
+take a look at the other adapters to understand what you need to do..it's very simple.
+
+enjoy using :partying_face:
