@@ -1,6 +1,5 @@
 import { RpcContext } from "../lib/models";
 import { UserDb } from "./server/users/users";
-import { User } from "./server/users/users.model";
 
 declare module "../lib/models" {
   interface RpcContext {
