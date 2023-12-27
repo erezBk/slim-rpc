@@ -1,37 +1,12 @@
 # slim-rpc
-## Like Libs
-- https://github.com/phero-hq/phero
-- 
-## Why should I use this ?
-- thinking purely on business logic instead on conventions like http methods / headers etc in both client and server.
-- writing simple input-output functions instead of routes
-- generating type safe domain driven RPC client lib with a single command !
-- each RPC function returns a function that can be used to call the RPC function 
-     - use case 1 : for pre fetching data and then using some template engine to send back html
-     - user case 2 : to be used inside other RPC calls , because it's just a function!
+this project is my RPC implementation.
+I was very inspired by the [trpc](https://github.com/trpc/trpc) lib and they way that it made
+developing fullstack apps with such a good DX.
+but when I was inspecting the code I was blown away by the amount of it :)
+So I decided to create my own lib so that I can easily understand  what's going on
+and to learn from the experience...
 
-## setting call Context
-```ts
-// inside index.d.ts in your src root folder
-import "slim-rpc"
+I'm using it for my projects and U can too.
+It just works and there is so little code, it's slim :)
 
-declare module "slim-rpc"{
-  export interface ContextServices{
-       author:()=>string
-  } 
-}
-
-
-```
-
-# TODO:
-1. I need to bring the client generation code into the lib folder so that it could be generated 
-by the clients using "slim-rpc generate-client" command 
-
-So how do I make my code listen to commands like this "slim-rpc something" ?
-
-
-
-## HOW
-to create code that like trpc enables me to just share the types
-between server and client  without the need to generate code ? 
+enjoy :partying_face:
