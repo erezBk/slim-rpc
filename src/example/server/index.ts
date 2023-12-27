@@ -1,5 +1,5 @@
 import * as express from "express";
-import * as Rpc from "../../lib";
+import { create_rpc_server, RpcExpressAdapter } from "../../lib";
 import "./users/users.rpc";
 import "./accounts/accounts.rpc";
 import { UsersCol } from "./users/users";
@@ -13,9 +13,8 @@ const PORT = +process.env.PORT || 3001;
 const app = express();
 app.use(cors()).use(express.json());
 
-Rpc.init<AppRouter>({
-  express_app: app,
-  port: PORT,
+create_rpc_server<AppRouter>({
+  web_framework: RpcExpressAdapter(app),
   routes: {
     accounts,
     users,

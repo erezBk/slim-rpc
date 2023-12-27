@@ -1,36 +1,23 @@
-import { Express, Request } from "express";
 import {
   RpcContext,
   RpcRequestContext,
   InputValidationFn,
   RpcResponse,
+  WebFramework,
 } from "./models";
 
-let app: Express;
+let app: WebFramework<unknown>;
 let routes_to_init = [];
-let port_number = 0;
 
-export const init = <T>(params: {
-  express_app: Express;
-  port: number;
+export const create_rpc_server = <T>(params: {
+  web_framework: WebFramework<T>;
   create_context: (req: Request) => Promise<RpcContext>;
   routes: T;
 }) => {
-  const { create_context, express_app, port, routes } = params;
-  port_number = port;
-  app = express_app;
-
-  // route for client to get the slim-rpc scheme
-  app.get("/slim-rpc-scheme", (req, res) => {
-    res.json(routes);
-  });
-
-  app.use(async (req, _, next) => {
-    const req_context = await create_context(req);
-    req["req_context"] = req_context;
-    next();
-  });
-
+  const { create_context, web_framework, routes } = params;
+  app = web_framework;
+  app.expose_all_routes("/slim-rpc-scheme", routes);
+  app.inject_ctx_to_each_call("req_context", create_context);
   if (routes_to_init.length > 0) {
     routes_to_init.forEach((fn) => fn());
   }
@@ -41,43 +28,44 @@ export const RPC = <IN, OUT>(
   validate_input: InputValidationFn<IN>,
   fn: (input: IN, ctx: RpcRequestContext) => Promise<OUT>
 ): { query: (input: IN) => Promise<RpcResponse<OUT>> } => {
-  const add_route = () => {
-    app.post("/" + name, async (req, res) => {
-      const input = req.body;
+  const create_route = () => {
+    app.create_route<IN, OUT>("req_context", name, async (input, ctx) => {
       const is_valid = await validate_input(input);
       if (is_valid) {
         try {
           const value = await fn(input, {
-            ctx: req["req_context"],
+            ctx,
           });
-          res.json({
+          return {
             type: "success",
             value,
-          });
+          };
         } catch (error) {
           const { message } = error as Error;
-          res.json({
+          return {
             type: "error",
             code: 500,
             reason: message,
-          });
+          };
         }
       } else {
-        res.json({
+        return {
           type: "error",
           code: 400,
           reason: "bad input",
-        });
+        };
       }
     });
   };
   if (app) {
-    add_route();
+    create_route();
   } else {
-    routes_to_init.push(add_route);
+    routes_to_init.push(create_route);
   }
   return {
     // @ts-ignore
     query: name,
   };
 };
+
+export * from "./adapters";
