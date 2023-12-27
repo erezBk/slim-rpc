@@ -1,5 +1,5 @@
-import { accounts } from "./accounts/accounts.rpc";
-import { users } from "./users/users.rpc";
+import { accounts } from "./server/accounts/accounts.rpc";
+import { users } from "./server/users/users.rpc";
 
 const appRouter = {
   accounts,

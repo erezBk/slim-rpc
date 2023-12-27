@@ -43,7 +43,7 @@ export const RPC = <IN, OUT>(
       if (is_valid) {
         try {
           const result = await fn(input, {
-            context: req["req_context"],
+            ctx: req["req_context"],
           });
           res.json(result);
         } catch (error) {

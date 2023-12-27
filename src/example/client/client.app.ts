@@ -1,5 +1,5 @@
-import { AppRouter } from "./router.model";
-import { create_client } from "../lib/client";
+import { AppRouter } from "../router.model";
+import { create_client } from "../../lib/client";
 
 export const run_client = async () => {
   console.log("running client");

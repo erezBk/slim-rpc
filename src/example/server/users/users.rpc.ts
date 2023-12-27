@@ -1,4 +1,5 @@
-import { RPC } from "../../lib";
+import { RPC } from "../../../lib";
+
 import { has_prop, to_unary } from "../fp";
 import { User } from "./users.model";
 import * as joi from "joi";
@@ -13,8 +14,8 @@ const is_valid_user = to_unary(user_scheme.validate);
 const list = RPC<{ count: number }, User[]>(
   "users.list",
   ({ count }) => count > 6,
-  async ({ count }, { context }) => {
-    const users_col = await context.services.users();
+  async ({ count }, { ctx }) => {
+    const users_col = await ctx.services.users();
     const users = await users_col.list();
     return users.slice(0, count);
   }
@@ -23,8 +24,8 @@ const list = RPC<{ count: number }, User[]>(
 const update = RPC<User, User[]>(
   "users.update",
   is_valid_user,
-  async ({ age, name }, { context }) => {
-    const users_col = await context.services.users();
+  async ({ age, name }, { ctx }) => {
+    const users_col = await ctx.services.users();
     await users_col.create(name, age);
     const users_state = await users_col.list();
     return users_state;
@@ -34,8 +35,8 @@ const update = RPC<User, User[]>(
 const create = RPC<{ name: string; age: number }, { id: string }>(
   "users.create",
   () => true,
-  async ({ age, name }, { context }) => {
-    const users_col = await context.services.users();
+  async ({ age, name }, { ctx }) => {
+    const users_col = await ctx.services.users();
     const id = await users_col.create(name, age);
     return { id };
   }
@@ -44,8 +45,8 @@ const create = RPC<{ name: string; age: number }, { id: string }>(
 const remove = RPC<{ id: string }, User[]>(
   "users.remove",
   has_prop("id"),
-  async ({ id }, { context }) => {
-    const users_col = await context.services.users();
+  async ({ id }, { ctx }) => {
+    const users_col = await ctx.services.users();
     await users_col.remove(id);
     const users = await users_col.list();
     return users;
