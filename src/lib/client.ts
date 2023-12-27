@@ -1,5 +1,3 @@
-import axios from "axios";
-
 export const create_client = <T>(base_url: string): T => {
   let is_ready = false;
   const waiters = [];
@@ -36,8 +34,16 @@ export const create_client = <T>(base_url: string): T => {
 
   const create_api_call = (api_call_key: string) => {
     return async (props) => {
-      const res = await axios.post(`${base_url}/${api_call_key}`, props);
-      return res.data;
+      const url = `${base_url}/${api_call_key}`;
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(props), // Convert the data to JSON string
+      });
+      const data = await res.json();
+      return data;
     };
   };
 
@@ -59,8 +65,13 @@ export const create_client = <T>(base_url: string): T => {
   // @ts-ignore
   const client_proxy: T = new Proxy(client, proxy_handler([]));
   (async () => {
-    const res = await axios.get(base_url + "/slim-rpc-scheme");
-    const api_scheme = res.data;
+    const res = await fetch(base_url + "/slim-rpc-scheme", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const api_scheme = await res.json();
     client = parse_scheme(api_scheme);
     is_ready = true;
     waiters.forEach((fn) => fn());
