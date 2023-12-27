@@ -8,13 +8,14 @@ export interface RpcRequestContext {
 }
 
 interface RpcSuccessResponse<T> {
-  success: true;
+  type: "success";
   value: T;
 }
 
 interface RpcErrorResponse {
-  success: false;
+  type: "error";
   code: number;
+  reason?: string;
 }
 
 export type RpcResponse<T> = RpcSuccessResponse<T> | RpcErrorResponse;
