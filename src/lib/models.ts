@@ -1,22 +1,24 @@
-import { Request } from "express";
-
-export interface Context {
-  [key: string]: any;
+export interface RpcContext {
+  author: string;
 }
 
-export interface RequestContext {
-  req: Request;
-  context: Context;
+export interface RpcRequestContext {
+  //req: Request;
+  ctx: RpcContext;
 }
 
-interface SuccessResponse<T> {
+interface RpcSuccessResponse<T> {
   success: true;
   value: T;
 }
 
-interface ErrorResponse {
+interface RpcErrorResponse {
   success: false;
   code: number;
 }
 
-export type Response<T> = SuccessResponse<T> | ErrorResponse;
+export type RpcResponse<T> = RpcSuccessResponse<T> | RpcErrorResponse;
+
+export type InputValidationFn<IN> =
+  | ((body: IN) => boolean)
+  | ((body: IN) => Promise<boolean>);

@@ -3,7 +3,7 @@ import { User } from "./users.model";
 
 const next_user_id = gen_id("user");
 
-interface UserDb {
+export interface UserDb {
   create: (name: string, age: number) => Promise<string>;
   list: () => Promise<User[]>;
   remove: (id: string) => Promise<boolean>;
@@ -11,7 +11,19 @@ interface UserDb {
 
 export const UsersCol = memoize((org_id: string) => {
   console.log("init users collection for orgId : ", org_id);
-  const users_db: Record<string, User> = {};
+  const users_db: Record<string, User> = Array(10)
+    .fill({})
+    .map((_, index) => {
+      return {
+        id: index + "",
+        name: "user from server " + index,
+        age: 30,
+      };
+    })
+    .reduce((acc, user) => {
+      acc[user.id] = user;
+      return acc;
+    }, {});
 
   const create = async (name: string, age: number) => {
     const id = next_user_id();
