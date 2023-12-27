@@ -8,7 +8,7 @@ and to learn from the experience...
 
 I'm using it for my projects and U can too. <br>
 It just works and there is so little code<br>
-it's **under 200 lines of code!**
+it's **under 230 lines of code!**
 It's slim :)
 
 enjoy :partying_face:

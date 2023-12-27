@@ -16,6 +16,7 @@ export const create_rpc_server = <T>(params: {
 }) => {
   const { create_context, web_framework, routes } = params;
   app = web_framework;
+  // route for client to get the slim-rpc scheme
   app.expose_all_routes("/slim-rpc-scheme", routes);
   app.inject_ctx_to_each_call("req_context", create_context);
   if (routes_to_init.length > 0) {

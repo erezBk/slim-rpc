@@ -3,7 +3,6 @@ import { Express } from "express";
 
 export const RpcExpressAdapter = <T>(app: Express): WebFramework<T> => {
   const expose_all_routes = (path: string, routes: T) => {
-    // route for client to get the slim-rpc scheme
     app.get(path, (_, res) => {
       res.json(routes);
     });
