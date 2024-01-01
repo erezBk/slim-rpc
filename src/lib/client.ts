@@ -1,6 +1,13 @@
 export const create_client = <T>(base_url: string): T => {
   let is_ready = false;
   const waiters = [];
+  // the cb is a Promise waiting to be resolved by
+  // the batch request handler containing the result corresponding
+  // to this api call.
+  // the batched_requests array must be clean once the requests are exec
+  // and before they resolve! the items will move to a different array.
+  const batched_requests: Array<{ url: string; props: string; cb: Function }> =
+    [];
 
   // @ts-ignore
   let client: T = {};
@@ -35,12 +42,13 @@ export const create_client = <T>(base_url: string): T => {
   const create_api_call = (api_call_key: string) => {
     return async (props) => {
       const url = `${base_url}/${api_call_key}`;
+      const body = JSON.stringify(props);
       const res = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(props), // Convert the data to JSON string
+        body,
       });
       const data = await res.json();
       return data;

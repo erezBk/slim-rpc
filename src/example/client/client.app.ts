@@ -8,6 +8,11 @@ export const run_client = async () => {
   console.log("RES:", res);
   const res2 = await client.users.list.query({ count: 7 });
   console.log("res2:", res2);
+  /*  const bad_update_client_res = await client.users.create.query({
+    name: "erez",
+    age: -1,
+  });
+  console.log("bad_update_client_res: ", bad_update_client_res); */
   setTimeout(async () => {
     const res3 = await client.users.create.query({
       age: 20,
@@ -15,7 +20,7 @@ export const run_client = async () => {
     });
     console.log("res3:", res3);
     const res4 = await client.users.list.query({
-      count: 100,
+      count: 5,
     });
     console.log("res4:", res4);
   }, 1000);
