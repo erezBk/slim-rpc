@@ -1,4 +1,4 @@
-import { RPC } from "../../../lib";
+import { RPC, Validators } from "../../../lib";
 import { Account } from "./accounts.model";
 
 const _accounts: Record<string, Account> = {
@@ -10,7 +10,7 @@ const _accounts: Record<string, Account> = {
 
 const get_by_id = RPC<{ id: string }, Account>(
   "accounts.get_by_id",
-  () => true,
+  Validators.always_valid,
   async ({ id }) => {
     return _accounts[id];
   }

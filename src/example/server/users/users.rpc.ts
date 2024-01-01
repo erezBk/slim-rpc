@@ -1,6 +1,4 @@
-import { RPC } from "../../../lib";
-
-import { has_prop, to_unary } from "../fp";
+import { RPC, Validators } from "../../../lib";
 import { User } from "./users.model";
 import * as joi from "joi";
 
@@ -9,11 +7,9 @@ const user_scheme = joi.object({
   age: joi.number().integer().min(0).max(100).required(),
 });
 
-const is_valid_user = to_unary(user_scheme.validate);
-
 const list = RPC<{ count: number }, User[]>(
   "users.list",
-  ({ count }) => count > 6,
+  Validators.prop_is("count", (c) => c > 6, "count should be > 6"),
   async ({ count }, { ctx }) => {
     const users_col = await ctx.services.users();
     const users = await users_col.list();
@@ -23,7 +19,7 @@ const list = RPC<{ count: number }, User[]>(
 
 const update = RPC<User, User[]>(
   "users.update",
-  is_valid_user,
+  Validators.from.joi(user_scheme),
   async ({ age, name }, { ctx }) => {
     const users_col = await ctx.services.users();
     await users_col.create(name, age);
@@ -34,7 +30,7 @@ const update = RPC<User, User[]>(
 
 const create = RPC<{ name: string; age: number }, { id: string }>(
   "users.create",
-  () => true,
+  Validators.always_valid,
   async ({ age, name }, { ctx }) => {
     const users_col = await ctx.services.users();
     const id = await users_col.create(name, age);
@@ -44,7 +40,7 @@ const create = RPC<{ name: string; age: number }, { id: string }>(
 
 const remove = RPC<{ id: string }, User[]>(
   "users.remove",
-  has_prop("id"),
+  Validators.has_props("id"),
   async ({ id }, { ctx }) => {
     const users_col = await ctx.services.users();
     await users_col.remove(id);

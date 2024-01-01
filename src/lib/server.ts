@@ -31,8 +31,8 @@ export const RPC = <IN, OUT>(
 ): { query: (input: IN) => Promise<RpcResponse<OUT>> } => {
   const create_route = () => {
     app.create_route<IN, OUT>("req_context", name, async (input, ctx) => {
-      const is_valid = await validate_input(input);
-      if (is_valid) {
+      const validation_res = await validate_input(input);
+      if (validation_res.type == "success") {
         try {
           const value = await fn(input, {
             ctx,
@@ -53,7 +53,7 @@ export const RPC = <IN, OUT>(
         return {
           type: "error",
           code: 400,
-          reason: "bad input",
+          reason: validation_res.reason,
         };
       }
     });

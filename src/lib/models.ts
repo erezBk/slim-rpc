@@ -3,7 +3,6 @@ export interface RpcContext {
 }
 
 export interface RpcRequestContext {
-  //req: Request;
   ctx: RpcContext;
 }
 
@@ -20,11 +19,13 @@ interface RpcErrorResponse {
 
 export type RpcResponse<T> = RpcSuccessResponse<T> | RpcErrorResponse;
 
-export type InputValidationFn<IN> =
-  | ((body: IN) => boolean)
-  | ((body: IN) => Promise<boolean>);
+export type ValidationResponse =
+  | { type: "success" }
+  | { type: "error"; reason: string };
 
-// TODO: NOT GOOD !! need to improve
+export type InputValidationFn<IN> =
+  | ((body: IN) => ValidationResponse)
+  | ((body: IN) => Promise<ValidationResponse>);
 
 export interface WebFramework<T> {
   expose_all_routes: (path: string, routes: T) => void;
@@ -38,11 +39,3 @@ export interface WebFramework<T> {
     get_res: (input: IN, ctx: RpcContext) => Promise<RpcResponse<OUT>>
   ) => void;
 }
-
-/* 
- 
- extract_body_from_req
- send_json_response
-
-
-*/
