@@ -6,7 +6,7 @@ import {
   WebFramework,
 } from "./models";
 
-let app: WebFramework<unknown>;
+let app: WebFramework<any>;
 let routes_to_init = [];
 
 export const create_rpc_server = <T>(params: {
@@ -15,7 +15,10 @@ export const create_rpc_server = <T>(params: {
   routes: T;
 }) => {
   const { create_context, web_framework, routes } = params;
+
   app = web_framework;
+  app.inject_ctx_to_each_call("req_context", create_context);
+
   const all_routes: string[] = [];
   function exec_path(key, value) {
     if (typeof value == "object") {
@@ -27,14 +30,30 @@ export const create_rpc_server = <T>(params: {
       value(key);
     }
   }
-  exec_path("rpc", routes);
+  // @ts-ignore
+  Object.entries(routes).forEach(([k, v]) => exec_path(k, v));
+
+  function arr_to_obj(array) {
+    let result = {};
+    array.forEach((item) => {
+      const keys = item.split("/");
+      const lastKey = keys.pop();
+      let currentObj = result;
+
+      keys.forEach((key) => {
+        currentObj[key] = currentObj[key] || {};
+        currentObj = currentObj[key];
+      });
+
+      currentObj[lastKey] = item;
+    });
+
+    return result;
+  }
+
   // route for client to get the slim-rpc scheme
   console.log("all_routes : ", all_routes);
-  app.expose_all_routes("/slim-rpc-scheme", all_routes);
-  app.inject_ctx_to_each_call("req_context", create_context);
-  if (routes_to_init.length > 0) {
-    routes_to_init.forEach((fn) => fn());
-  }
+  app.expose_all_routes("/slim-rpc-scheme", arr_to_obj(all_routes));
 };
 
 export const RPC = <IN, OUT>(
@@ -70,11 +89,6 @@ export const RPC = <IN, OUT>(
       }
     });
   };
-  /*  if (app) {
-    create_route();
-  } else {
-    routes_to_init.push(create_route);
-  } */
   // @ts-ignore
   return create_route;
 };

@@ -5,7 +5,7 @@ export const create_client = <T>(base_url: string): T => {
   // the batch request handler containing the result corresponding
   // to this api call.
   // the batched_requests array must be clean once the requests are exec
-  // and before they resolve! the items will move to a different array.
+  // and before they resolve! the items will move to a different
   const batched_requests: Array<{ url: string; props: string; cb: Function }> =
     [];
 
@@ -14,19 +14,20 @@ export const create_client = <T>(base_url: string): T => {
 
   const proxy_handler = (path: string[]) => ({
     get(target, prop, receiver) {
-      console.log("prop ::", prop);
       if (prop === "query") {
-        console.log("path, prop", path, prop);
         if (is_ready) {
-          return [...path, prop].reduce((acc, p) => acc[p], client);
+          return [...path].reduce((acc, p) => acc[p], client);
         } else {
-          return async (args) => {
+          return async (args: any) => {
             return new Promise((resolve) => {
+              // @ts-ignore
               waiters.push(async () => {
-                const the_api_call = [...path, prop].reduce(
+                // @ts-ignore
+                const the_api_call: (a: any) => Promise<any> = [...path].reduce(
                   (acc, p) => acc[p],
                   client
                 );
+                // @ts-ignore
                 const res = await the_api_call(args);
                 resolve(res);
               });
@@ -56,7 +57,7 @@ export const create_client = <T>(base_url: string): T => {
       return data;
     };
   };
-  /* 
+
   const replace_apply_keys_with_calls = (obj: any) => {
     for (const key in obj) {
       if (typeof obj[key] === "string") {
@@ -66,22 +67,18 @@ export const create_client = <T>(base_url: string): T => {
       }
     }
     return obj;
-  }; */
-
-  const replace_apply_keys_with_calls = (obj: any) => {
-    for (const key in obj) {
-      obj[key] = create_api_call(obj[key]);
-      /*  if (typeof obj[key] === "string") {
-        obj[key] = create_api_call(obj[key]);
-      } else if (typeof obj[key] === "object" && !Array.isArray(obj[key])) {
-        obj[key] = replace_apply_keys_with_calls(obj[key]);
-      } */
-    }
-    return obj;
   };
 
   const parse_scheme = <T>(api_scheme: T): T => {
     return replace_apply_keys_with_calls(api_scheme);
+  };
+
+  const delay = () => {
+    return new Promise((r) => {
+      setTimeout(() => {
+        r("");
+      }, 2000);
+    });
   };
 
   // @ts-ignore
@@ -93,12 +90,12 @@ export const create_client = <T>(base_url: string): T => {
         "Content-Type": "application/json",
       },
     });
+    //  await delay();
     const api_scheme = await res.json();
     client = parse_scheme(api_scheme);
-
-    console.log("client:", Object.keys(client));
+    console.log("client: ", client);
     is_ready = true;
-    waiters.forEach((fn) => fn());
+    waiters.forEach((fn: Function) => fn());
   })();
 
   return client_proxy;
