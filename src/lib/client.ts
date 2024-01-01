@@ -5,7 +5,7 @@ export const create_client = <T>(base_url: string): T => {
   // the batch request handler containing the result corresponding
   // to this api call.
   // the batched_requests array must be clean once the requests are exec
-  // and before they resolve! the items will move to a different array.
+  // and before they resolve! the items will move to a different
   const batched_requests: Array<{ url: string; props: string; cb: Function }> =
     [];
 
@@ -16,15 +16,18 @@ export const create_client = <T>(base_url: string): T => {
     get(target, prop, receiver) {
       if (prop === "query") {
         if (is_ready) {
-          return [...path, prop].reduce((acc, p) => acc[p], client);
+          return [...path].reduce((acc, p) => acc[p], client);
         } else {
-          return async (args) => {
+          return async (args: any) => {
             return new Promise((resolve) => {
+              // @ts-ignore
               waiters.push(async () => {
-                const the_api_call = [...path, prop].reduce(
+                // @ts-ignore
+                const the_api_call: (a: any) => Promise<any> = [...path].reduce(
                   (acc, p) => acc[p],
                   client
                 );
+                // @ts-ignore
                 const res = await the_api_call(args);
                 resolve(res);
               });
@@ -70,6 +73,14 @@ export const create_client = <T>(base_url: string): T => {
     return replace_apply_keys_with_calls(api_scheme);
   };
 
+  const delay = () => {
+    return new Promise((r) => {
+      setTimeout(() => {
+        r("");
+      }, 2000);
+    });
+  };
+
   // @ts-ignore
   const client_proxy: T = new Proxy(client, proxy_handler([]));
   (async () => {
@@ -79,10 +90,12 @@ export const create_client = <T>(base_url: string): T => {
         "Content-Type": "application/json",
       },
     });
+    //  await delay();
     const api_scheme = await res.json();
     client = parse_scheme(api_scheme);
+    console.log("client: ", client);
     is_ready = true;
-    waiters.forEach((fn) => fn());
+    waiters.forEach((fn: Function) => fn());
   })();
 
   return client_proxy;

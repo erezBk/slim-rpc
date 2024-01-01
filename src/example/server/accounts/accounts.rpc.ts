@@ -9,7 +9,6 @@ const _accounts: Record<string, Account> = {
 };
 
 const get_by_id = RPC<{ id: string }, Account>(
-  "accounts.get_by_id",
   Validators.always_valid,
   async ({ id }) => {
     return _accounts[id];

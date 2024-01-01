@@ -8,7 +8,6 @@ const user_scheme = joi.object({
 });
 
 const list = RPC<{ count: number }, User[]>(
-  "users.list",
   Validators.prop_is("count", (c) => c > 6, "count should be > 6"),
   async ({ count }, { ctx }) => {
     const users_col = await ctx.services.users();
@@ -18,7 +17,6 @@ const list = RPC<{ count: number }, User[]>(
 );
 
 const update = RPC<User, User[]>(
-  "users.update",
   Validators.from.joi(user_scheme),
   async ({ age, name }, { ctx }) => {
     const users_col = await ctx.services.users();
@@ -29,7 +27,6 @@ const update = RPC<User, User[]>(
 );
 
 const create = RPC<{ name: string; age: number }, { id: string }>(
-  "users.create",
   Validators.always_valid,
   async ({ age, name }, { ctx }) => {
     const users_col = await ctx.services.users();
@@ -39,7 +36,6 @@ const create = RPC<{ name: string; age: number }, { id: string }>(
 );
 
 const remove = RPC<{ id: string }, User[]>(
-  "users.remove",
   Validators.has_props("id"),
   async ({ id }, { ctx }) => {
     const users_col = await ctx.services.users();
@@ -54,8 +50,4 @@ export const users = {
   update,
   create,
   remove,
-};
-
-export const UsersTests = {
-  create,
 };
