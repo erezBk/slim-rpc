@@ -7,7 +7,24 @@ import {
 } from "./models";
 
 let app: WebFramework<any>;
-let routes_to_init = [];
+
+const arr_to_obj = (arr: string[]) => {
+  let result = {};
+  arr.forEach((item) => {
+    const keys = item.split("/");
+    const last_key = keys.pop();
+    let current_obj = result;
+
+    keys.forEach((key) => {
+      current_obj[key] = current_obj[key] || {};
+      current_obj = current_obj[key];
+    });
+
+    current_obj[last_key] = item;
+  });
+
+  return result;
+};
 
 export const create_rpc_server = <T>(params: {
   web_framework: WebFramework<T>;
@@ -15,7 +32,6 @@ export const create_rpc_server = <T>(params: {
   routes: T;
 }) => {
   const { create_context, web_framework, routes } = params;
-
   app = web_framework;
   app.inject_ctx_to_each_call("req_context", create_context);
 
@@ -32,27 +48,7 @@ export const create_rpc_server = <T>(params: {
   }
   // @ts-ignore
   Object.entries(routes).forEach(([k, v]) => exec_path(k, v));
-
-  function arr_to_obj(array) {
-    let result = {};
-    array.forEach((item) => {
-      const keys = item.split("/");
-      const lastKey = keys.pop();
-      let currentObj = result;
-
-      keys.forEach((key) => {
-        currentObj[key] = currentObj[key] || {};
-        currentObj = currentObj[key];
-      });
-
-      currentObj[lastKey] = item;
-    });
-
-    return result;
-  }
-
   // route for client to get the slim-rpc scheme
-  console.log("all_routes : ", all_routes);
   app.expose_all_routes("/slim-rpc-scheme", arr_to_obj(all_routes));
 };
 
