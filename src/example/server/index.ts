@@ -9,7 +9,7 @@ import { users } from "./users/users.rpc";
 import { AppRouter } from "../router.model";
 import { run_client } from "../client/client.app";
 
-const PORT = +process.env.PORT || 3001;
+const PORT = +process.env.PORT! || 3001;
 const app = express();
 app.use(cors()).use(express.json());
 

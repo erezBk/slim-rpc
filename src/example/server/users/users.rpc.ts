@@ -51,7 +51,3 @@ export const users = {
   create,
   remove,
 };
-
-export const UsersTests = {
-  create,
-};
