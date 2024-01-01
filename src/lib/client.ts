@@ -14,7 +14,9 @@ export const create_client = <T>(base_url: string): T => {
 
   const proxy_handler = (path: string[]) => ({
     get(target, prop, receiver) {
+      console.log("prop ::", prop);
       if (prop === "query") {
+        console.log("path, prop", path, prop);
         if (is_ready) {
           return [...path, prop].reduce((acc, p) => acc[p], client);
         } else {
@@ -54,7 +56,7 @@ export const create_client = <T>(base_url: string): T => {
       return data;
     };
   };
-
+  /* 
   const replace_apply_keys_with_calls = (obj: any) => {
     for (const key in obj) {
       if (typeof obj[key] === "string") {
@@ -62,6 +64,18 @@ export const create_client = <T>(base_url: string): T => {
       } else if (typeof obj[key] === "object" && !Array.isArray(obj[key])) {
         obj[key] = replace_apply_keys_with_calls(obj[key]);
       }
+    }
+    return obj;
+  }; */
+
+  const replace_apply_keys_with_calls = (obj: any) => {
+    for (const key in obj) {
+      obj[key] = create_api_call(obj[key]);
+      /*  if (typeof obj[key] === "string") {
+        obj[key] = create_api_call(obj[key]);
+      } else if (typeof obj[key] === "object" && !Array.isArray(obj[key])) {
+        obj[key] = replace_apply_keys_with_calls(obj[key]);
+      } */
     }
     return obj;
   };
@@ -81,6 +95,8 @@ export const create_client = <T>(base_url: string): T => {
     });
     const api_scheme = await res.json();
     client = parse_scheme(api_scheme);
+
+    console.log("client:", Object.keys(client));
     is_ready = true;
     waiters.forEach((fn) => fn());
   })();
