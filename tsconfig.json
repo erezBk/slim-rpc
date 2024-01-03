@@ -1,13 +1,13 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
+        "module": "CommonJS",
         "target": "ESNext",
         "rootDir": "src",
-        "outDir": "dist"
+        "outDir": "dist",
+        "declaration": true
     },
     "exclude": [
         "node_modules",
         "scripts",
-        "rpc-client"
     ]
 }
