@@ -93,7 +93,6 @@ export const create_client = <T>(base_url: string): T => {
     //  await delay();
     const api_scheme = await res.json();
     client = parse_scheme(api_scheme);
-    console.log("client: ", client);
     is_ready = true;
     waiters.forEach((fn: Function) => fn());
   })();

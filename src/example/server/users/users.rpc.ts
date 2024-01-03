@@ -1,4 +1,4 @@
-import { RPC, Validators } from "../../../lib";
+import { RPC, Validators } from "../../../lib/server";
 import { User } from "./users.model";
 import * as joi from "joi";
 

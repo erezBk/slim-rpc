@@ -1,4 +1,4 @@
-import { ValidationResponse } from "../models";
+import { ValidationResponse } from "../../models";
 import { from_joi_scheme, from_zod_scheme } from "./validation.adapters";
 
 const always_valid = (): ValidationResponse => ({ type: "success" });

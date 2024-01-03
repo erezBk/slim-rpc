@@ -4,7 +4,7 @@ import {
   InputValidationFn,
   RpcResponse,
   WebFramework,
-} from "./models";
+} from "../models";
 
 let app: WebFramework<any>;
 

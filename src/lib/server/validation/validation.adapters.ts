@@ -1,6 +1,6 @@
 import * as joi from "joi";
-import { SafeParseError, ZodError, z } from "zod";
-import { ValidationResponse } from "../models";
+import { SafeParseError, Schema } from "zod";
+import { ValidationResponse } from "../../models";
 
 export const from_joi_scheme = <T>(scheme: joi.ObjectSchema<T>) => {
   return (input: T): ValidationResponse => {
@@ -17,7 +17,7 @@ export const from_joi_scheme = <T>(scheme: joi.ObjectSchema<T>) => {
   };
 };
 
-export const from_zod_scheme = <T>(scheme: z.Schema<T>) => {
+export const from_zod_scheme = <T>(scheme: Schema<T>) => {
   return (input: T): ValidationResponse => {
     const res = scheme.safeParse(input);
     if (!res.success) {

@@ -4,7 +4,7 @@ import {
   RpcRequestContext,
   RpcResponse,
   WebFramework,
-} from "../models";
+} from "../../models";
 import * as koa from "koa";
 import * as Router from "koa-router";
 

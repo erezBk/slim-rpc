@@ -1,4 +1,4 @@
-import { RPC, Validators } from "../../../lib";
+import { RPC, Validators } from "../../../lib/server";
 import { Account } from "./accounts.model";
 
 const _accounts: Record<string, Account> = {

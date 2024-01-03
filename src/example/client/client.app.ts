@@ -1,5 +1,5 @@
 import { AppRouter } from "../router.model";
-import { create_client } from "../../lib";
+import { create_client } from "../../lib/client";
 
 export const run_client = async () => {
   console.log("running client");
@@ -8,11 +8,6 @@ export const run_client = async () => {
   console.log("RES:", res);
   const res2 = await client.users.list.query({ count: 7 });
   console.log("res2:", res2);
-  /*  const bad_update_client_res = await client.users.create.query({
-    name: "erez",
-    age: -1,
-  });
-  console.log("bad_update_client_res: ", bad_update_client_res); */
   setTimeout(async () => {
     const res3 = await client.users.create.query({
       age: 20,
