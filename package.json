@@ -6,7 +6,7 @@
   "types": "dist/lib/server/index.d.ts",
   "browser": "dist/index.browser.js",
   "typings": "dist/lib/client/index.d.ts",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "prepare": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1",
