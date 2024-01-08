@@ -9,6 +9,7 @@
   "type": "commonjs",
   "scripts": {
     "clean": "del-cli lib dist",
+    "postinstall": "npm run prepare",
     "prepare": "npm run build",
     "build": "npm run clean && tsc -p tsconfig.esm.json && tsc -p tsconfig.cjs.json",
     "test": "echo \"Error: no test specified\" && exit 1",
