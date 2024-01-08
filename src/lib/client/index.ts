@@ -1,6 +1,6 @@
 export const create_client = <T>(base_url: string): T => {
   let is_ready = false;
-  const waiters = [];
+  const waiters: Array<() => Promise<void>> = [];
   // the cb is a Promise waiting to be resolved by
   // the batch request handler containing the result corresponding
   // to this api call.
@@ -13,9 +13,11 @@ export const create_client = <T>(base_url: string): T => {
   let client: T = {};
 
   const proxy_handler = (path: string[]) => ({
+    // @ts-ignore
     get(target, prop, receiver) {
       if (prop === "query") {
         if (is_ready) {
+          // @ts-ignore
           return [...path].reduce((acc, p) => acc[p], client);
         } else {
           return async (args: any) => {
@@ -24,6 +26,7 @@ export const create_client = <T>(base_url: string): T => {
               waiters.push(async () => {
                 // @ts-ignore
                 const the_api_call: (a: any) => Promise<any> = [...path].reduce(
+                  // @ts-ignore
                   (acc, p) => acc[p],
                   client
                 );
@@ -43,6 +46,7 @@ export const create_client = <T>(base_url: string): T => {
   });
 
   const create_api_call = (api_call_key: string) => {
+    // @ts-ignore
     return async (props) => {
       const url = `${base_url}/${api_call_key}`;
       const body = JSON.stringify(props);
@@ -90,7 +94,6 @@ export const create_client = <T>(base_url: string): T => {
         "Content-Type": "application/json",
       },
     });
-    //  await delay();
     const api_scheme = await res.json();
     client = parse_scheme(api_scheme);
     is_ready = true;

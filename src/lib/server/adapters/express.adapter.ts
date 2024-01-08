@@ -15,6 +15,7 @@ export const RpcExpressAdapter = <T>(app: Express): WebFramework<T> => {
     app.use(async (req, _, next) => {
       // @ts-ignore
       const req_context = await create_context(req);
+      // @ts-ignore
       req[req_context_param_name] = req_context;
       next();
     });
@@ -26,6 +27,7 @@ export const RpcExpressAdapter = <T>(app: Express): WebFramework<T> => {
     get_res: (body: IN, ctx: RpcContext) => Promise<RpcResponse<OUT>>
   ) => {
     app.post("/" + path, async (req, res) => {
+      // @ts-ignore
       const result = await get_res(req.body, req[req_context_param_name]);
       res.json(result);
     });

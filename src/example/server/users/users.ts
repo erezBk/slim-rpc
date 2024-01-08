@@ -23,7 +23,7 @@ export const UsersCol = memoize((org_id: string) => {
     .reduce((acc, user) => {
       acc[user.id] = user;
       return acc;
-    }, {});
+    }, {} as Record<string, User>);
 
   const create = async (name: string, age: number) => {
     const id = next_user_id();

@@ -23,6 +23,7 @@ create_rpc_server<AppRouter>({
       user: { id: "1" },
       services: {
         users: async () => {
+          // @ts-ignore
           const col_name = "users_" + req.headers["org-id"];
           return UsersCol(col_name);
         },

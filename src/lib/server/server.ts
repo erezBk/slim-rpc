@@ -16,10 +16,12 @@ const arr_to_obj = (arr: string[]) => {
     let current_obj = result;
 
     keys.forEach((key) => {
+      // @ts-ignore
       current_obj[key] = current_obj[key] || {};
+      // @ts-ignore
       current_obj = current_obj[key];
     });
-
+    // @ts-ignore
     current_obj[last_key] = item;
   });
 
@@ -36,6 +38,7 @@ export const create_rpc_server = <T>(params: {
   app.inject_ctx_to_each_call("req_context", create_context);
 
   const all_routes: string[] = [];
+  // @ts-ignore
   function exec_path(key, value) {
     if (typeof value == "object") {
       Object.entries(value).forEach(([k, v]) => {
