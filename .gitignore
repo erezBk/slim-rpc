@@ -3,4 +3,4 @@ node_modules
 rpc-client
 todo.md
 .VSCodeCounter
-lib
+./lib

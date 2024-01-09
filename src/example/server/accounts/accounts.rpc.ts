@@ -1,4 +1,5 @@
-import { RPC, Validators } from "../../../lib/server";
+import * as z from "zod";
+import { RPC } from "../../../lib/server";
 import { Account } from "./accounts.model";
 
 const _accounts: Record<string, Account> = {
@@ -9,7 +10,7 @@ const _accounts: Record<string, Account> = {
 };
 
 const get_by_id = RPC<{ id: string }, Account>(
-  Validators.always_valid,
+  z.object({ id: z.string() }),
   async ({ id }) => {
     return _accounts[id];
   }
