@@ -6,7 +6,7 @@ import {
   RpcRouteObject,
   RpcRouter,
 } from "../models";
-import { Schema } from "zod";
+import { SafeParseError, Schema } from "zod";
 let app: WebFramework;
 
 const arr_to_obj = (arr: string[]) => {
@@ -85,7 +85,9 @@ export const RPC = <IN, OUT>(
         return {
           type: "error",
           code: 400,
-          reason: validation_res.error.issues.map((d) => d.message).join(", "),
+          reason: (validation_res as SafeParseError<any>).error.issues
+            .map((d) => d.message)
+            .join(", "),
         };
       }
     });
