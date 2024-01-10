@@ -1,4 +1,4 @@
-import { RpcContext, WebFramework, RpcResponse, RpcRouter } from "../../models";
+import { RpcContext, WebFramework, RpcResponse, RpcRouter } from "../models";
 import { Express } from "express";
 
 export const RpcExpressAdapter = (app: Express): WebFramework => {

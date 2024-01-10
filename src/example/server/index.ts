@@ -1,5 +1,5 @@
 import * as express from "express";
-import { create_rpc_server, RpcExpressAdapter } from "../../lib/server";
+import { create_rpc_server, RpcExpressAdapter } from "../../lib";
 import { UsersCol } from "./users/users";
 import * as cors from "cors";
 import { accounts } from "./accounts/accounts.rpc";

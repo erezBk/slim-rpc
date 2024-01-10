@@ -1,11 +1,10 @@
 import {
   RpcContext,
   RpcRequestContext,
-  InputValidationFn,
   WebFramework,
   RpcRouteObject,
   RpcRouter,
-} from "../models";
+} from "./models";
 import { SafeParseError, Schema } from "zod";
 let app: WebFramework;
 
@@ -57,7 +56,7 @@ export const create_rpc_server = (params: {
 };
 
 export const RPC = <IN, OUT>(
-  zod_scheme: Schema, //InputValidationFn<IN>,
+  zod_scheme: Schema,
   fn: (input: IN, ctx: RpcRequestContext) => Promise<OUT>
 ): RpcRouteObject<IN, OUT> => {
   const create_route = (path: string) => {

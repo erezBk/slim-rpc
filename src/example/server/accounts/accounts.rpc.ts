@@ -1,5 +1,5 @@
 import * as z from "zod";
-import { RPC } from "../../../lib/server";
+import { RPC } from "../../../lib";
 import { Account } from "./accounts.model";
 
 const _accounts: Record<string, Account> = {

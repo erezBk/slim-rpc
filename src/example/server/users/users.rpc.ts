@@ -1,4 +1,4 @@
-import { RPC } from "../../../lib/server";
+import { RPC } from "../../../lib";
 import { User } from "./users.model";
 import * as z from "zod";
 

@@ -1,14 +1,14 @@
 {
   "name": "slim-rpc",
-  "version": "1.0.0",
-  "description": "",
-  "main": "lib/cjs/server/index.js",
-  "types": "lib/cjs/server/index.d.ts",
-  "browser": "lib/esm/client/index.js",
-  "typings": "lib/esm/client/index.d.ts",
+  "version": "0.1",
+  "description": "RPC library for fun stack dev",
+  "main": "lib/cjs/index.js",
+  "types": "lib/cjs/index.d.ts",
+  "browser": "lib/esm/client.js",
+  "typings": "lib/esm/client.d.ts",
   "type": "commonjs",
   "files": [
-    "lib/**/*"
+    "lib/"
   ],
   "scripts": {
     "clean": "del-cli lib dist",
@@ -16,8 +16,10 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm run clean && tsc -p tsconfig.json && node dist/example/server/index.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "rpc"
+  ],
+  "author": "erezbkdeveloper@gmail.com",
   "license": "ISC",
   "dependencies": {
     "zod": "^3.22.4"
