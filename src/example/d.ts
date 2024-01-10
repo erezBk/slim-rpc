@@ -1,4 +1,3 @@
-import { RpcContext } from "../lib/models";
 import { UserDb } from "./server/users/users";
 
 declare module "../lib/models" {

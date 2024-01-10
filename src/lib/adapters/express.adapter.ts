@@ -1,8 +1,8 @@
-import { RpcContext, WebFramework, RpcResponse } from "../models";
+import { RpcContext, WebFramework, RpcResponse, RpcRouter } from "../models";
 import { Express } from "express";
 
-export const RpcExpressAdapter = <T>(app: Express): WebFramework<T> => {
-  const expose_all_routes = (path: string, routes: T) => {
+export const RpcExpressAdapter = (app: Express): WebFramework => {
+  const expose_all_routes = (path: string, routes: RpcRouter) => {
     app.get(path, (_, res) => {
       res.json(routes);
     });
@@ -15,6 +15,7 @@ export const RpcExpressAdapter = <T>(app: Express): WebFramework<T> => {
     app.use(async (req, _, next) => {
       // @ts-ignore
       const req_context = await create_context(req);
+      // @ts-ignore
       req[req_context_param_name] = req_context;
       next();
     });
@@ -26,6 +27,7 @@ export const RpcExpressAdapter = <T>(app: Express): WebFramework<T> => {
     get_res: (body: IN, ctx: RpcContext) => Promise<RpcResponse<OUT>>
   ) => {
     app.post("/" + path, async (req, res) => {
+      // @ts-ignore
       const result = await get_res(req.body, req[req_context_param_name]);
       res.json(result);
     });

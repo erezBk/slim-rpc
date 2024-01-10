@@ -1,5 +1,7 @@
-dist
-node_modules
-rpc-client
-todo.md
-.VSCodeCounter
+/dist
+/node_modules
+/rpc-client
+/todo.md
+/.VSCodeCounter
+/lib
+!/src/lib

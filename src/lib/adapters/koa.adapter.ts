@@ -1,18 +1,12 @@
-import {
-  InputValidationFn,
-  RpcContext,
-  RpcRequestContext,
-  RpcResponse,
-  WebFramework,
-} from "../models";
+import { RpcContext, RpcResponse, RpcRouter, WebFramework } from "../models";
 import * as koa from "koa";
 import * as Router from "koa-router";
 
-export const RpcKoaAdapter = <T>(
+export const RpcKoaAdapter = (
   app: koa<koa.DefaultState, koa.DefaultContext>,
   router: Router
-): WebFramework<T> => {
-  const expose_all_routes = (path: string, routes: T) => {
+): WebFramework => {
+  const expose_all_routes = (path: string, routes: RpcRouter) => {
     // route for client to get the slim-rpc scheme
     router.get(path, (ctx) => {
       ctx.body = routes;

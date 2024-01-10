@@ -17,6 +17,15 @@ interface RpcErrorResponse {
   reason?: string;
 }
 
+export type RpcRouteObject<IN, OUT> = {
+  query: (input: IN) => Promise<RpcResponse<OUT>>;
+};
+
+export type RpcRouter = Record<
+  string,
+  Record<string, RpcRouteObject<any, any>>
+>;
+
 export type RpcResponse<T> = RpcSuccessResponse<T> | RpcErrorResponse;
 
 export type ValidationResponse =
@@ -27,8 +36,8 @@ export type InputValidationFn<IN> =
   | ((body: IN) => ValidationResponse)
   | ((body: IN) => Promise<ValidationResponse>);
 
-export interface WebFramework<T> {
-  expose_all_routes: (path: string, routes: T) => void;
+export interface WebFramework {
+  expose_all_routes: (path: string, routes: RpcRouter) => void;
   inject_ctx_to_each_call: (
     req_ctx_param_name: string,
     create_context: (req: Request) => Promise<RpcContext>
