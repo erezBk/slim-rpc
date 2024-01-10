@@ -1,5 +1,11 @@
 # slim-rpc
 
+## 0.0.3
+
+### Patch Changes
+
+- 712dacc: changed readme
+
 ## 0.0.2
 
 ### Patch Changes
