@@ -13,6 +13,7 @@
   "scripts": {
     "clean": "del-cli lib dist",
     "build": "npm run clean && tsc -p tsconfig.esm.json && tsc -p tsconfig.cjs.json",
+    "release": "npm run build && changeset publish",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm run clean && tsc -p tsconfig.json && node dist/example/server/index.js"
   },
