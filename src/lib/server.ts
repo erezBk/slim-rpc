@@ -63,10 +63,6 @@ export const RPC = <IN, OUT>(
     app.create_route<IN, OUT>("req_context", path, async (input, ctx) => {
       const validation_res = await zod_scheme.safeParse(input);
 
-      const some_fn = () => {
-        console.log("I just added this to see if changesets will pick this up");
-      };
-
       if (validation_res.success) {
         try {
           const value = await fn(input, {
