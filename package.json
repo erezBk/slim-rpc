@@ -20,7 +20,6 @@
     "rpc"
   ],
   "author": "erezbkdeveloper@gmail.com",
-  "license": "ISC",
   "dependencies": {
     "zod": "^3.22.4"
   },
