@@ -1,3 +1,27 @@
+interface RpcClientDefaults {
+  base_url?: string;
+  headers?: {
+    [key: string]: string;
+  };
+}
+
+const rpc_client_config: RpcClientDefaults = {
+  base_url: "",
+  headers: {},
+};
+
+export const set_rpc_client_config = (options: RpcClientDefaults) => {
+  if (options.base_url) {
+    rpc_client_config.base_url = options.base_url;
+  }
+  if (options.headers) {
+    rpc_client_config.headers = {
+      ...rpc_client_config.headers,
+      ...options.headers,
+    };
+  }
+};
+
 /**
  * ### Create slim-rpc client
  * it will return the entire server routing as an object with the same route nesting structure
@@ -5,6 +29,7 @@
  * each RPC function in the server impl.
  * */
 export const create_client = <T>(base_url: string): T => {
+  rpc_client_config.base_url = base_url;
   let is_ready = false;
   let client: T = {} as T;
   const waiters: Array<() => Promise<void>> = [];
@@ -53,12 +78,13 @@ export const create_client = <T>(base_url: string): T => {
 
   const create_api_call = (api_call_key: string) => {
     return async (props: Object) => {
-      const url = `${base_url}/${api_call_key}`;
+      const url = `${rpc_client_config.base_url}/${api_call_key}`;
       const body = JSON.stringify(props);
       const res = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...rpc_client_config.headers,
         },
         body,
       });
@@ -82,14 +108,6 @@ export const create_client = <T>(base_url: string): T => {
     return api_scheme;
   };
 
-  const delay = (time: number) => {
-    return new Promise((res) => {
-      setTimeout(() => {
-        res("");
-      }, time);
-    });
-  };
-
   /**
    * this function is calling the slim-rpc server's scheme endpoint
    * so that it can construct the client rpc in runtime! (mind blowing I know)
@@ -98,14 +116,13 @@ export const create_client = <T>(base_url: string): T => {
    * (proxy is a sick sick sick mind bending js feature)
    * */
   (async () => {
-    const res = await fetch(base_url + "/slim-rpc-scheme", {
+    const res = await fetch(rpc_client_config.base_url + "/slim-rpc-scheme", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
     });
     const api_scheme = await res.json();
-    await delay(2000);
     client = parse_scheme(api_scheme);
     is_ready = true;
     /**
