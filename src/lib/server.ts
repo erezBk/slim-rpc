@@ -9,20 +9,16 @@ import { SafeParseError, Schema } from "zod";
 let app: WebFramework;
 
 const arr_to_obj = (arr: string[]) => {
-  let result = {};
+  let result: { [key: string]: any } = {};
   arr.forEach((item) => {
     const keys = item.split("/");
     const last_key = keys.pop();
     let current_obj = result;
-
     keys.forEach((key) => {
-      // @ts-ignore
       current_obj[key] = current_obj[key] || {};
-      // @ts-ignore
       current_obj = current_obj[key];
     });
-    // @ts-ignore
-    current_obj[last_key] = item;
+    current_obj[last_key!] = item;
   });
 
   return result;

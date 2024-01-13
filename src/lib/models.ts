@@ -1,6 +1,4 @@
-export interface RpcContext {
-  author: string;
-}
+export interface RpcContext {}
 
 export interface RpcRequestContext {
   ctx: RpcContext;
