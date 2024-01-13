@@ -2,9 +2,26 @@
 
 - Trpc inspired RPC lib
 - uses zod for input validation (did I say it's Trpc inspired ?)
-- **under 300 lines of code!** 👍
+- e2e intellisense
+- under 300 lines of code
 
 ## Usage
+### Augmenting the RpcContext 
+you will want to do that in order to have intellisense available in each RPC function <br>
+for that in your server project root create a **d.ts** file <br>
+and add inside **RpcContext** whatever you want
+```ts
+import { RpcContext } from "slim-rpc/lib/cjs/models";
+import { CartService } from "./cart/cart.service";
+declare module "slim-rpc/lib/cjs/models" {
+  interface RpcContext {
+    services: {
+      cart: CartService;
+    };
+  }
+}
+```
+
 ```ts
 // server/index.ts
 import express from 'express'
@@ -93,8 +110,10 @@ export const users = {
 // router.model.ts
 import { accounts } from "./server/accounts/accounts.rpc";
 import { users } from "./server/users/users.rpc";
+import {auth} from './server/auth/auth.rpc'
 
 const appRouter = {
+  auth,
   accounts,
   users,
 };
@@ -106,15 +125,25 @@ export type AppRouter = typeof appRouter;
 ```ts
 // client/state.ts
 import { AppRouter } from "../router.model";
-import { create_client } from "slim-rpc";
+import { create_client,set_rpc_client_config } from "slim-rpc";
 
 const client = create_client<AppRouter>(env.base_url);
-const all_clients = ref([]);
-const init_users = async()=>{
-    // get a list of 20 users
-    const res = await client.users.list.query({count:20})  // full intellisense !
-    if(res.type == 'success'){
-       all_clients.value =  res.value;
+const all_clients = ref([]); // vuejs example
+
+const init = async(name:string,pass:string)=>{
+    // get the authorization Bearer by login
+    const auth_res = await client.auth.login({name,pass})
+    if(auth_res.type == 'success'){
+       set_rpc_client_config({
+          headers: {
+            authorization: auth_res.value,
+          },
+        });
+      // get a list of 20 users
+      const res = await client.users.list.query({count:20})  // full intellisense !
+      if(res.type == 'success'){
+         all_clients.value =  res.value;
+      }
     }
 }
 // ...
