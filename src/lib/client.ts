@@ -1,28 +1,33 @@
+/**
+ * ### Create slim-rpc client
+ * it will return the entire server routing as an object with the same route nesting structure
+ * calling each endpoint is done via the **.query()** method which has input/output as defined by
+ * each RPC function in the server impl.
+ * */
 export const create_client = <T>(base_url: string): T => {
   let is_ready = false;
+  let client: T = {} as T;
   const waiters: Array<() => Promise<void>> = [];
-  // the cb is a Promise waiting to be resolved by
-  // the batch request handler containing the result corresponding
-  // to this api call.
-  // the batched_requests array must be clean once the requests are exec
-  // and before they resolve! the items will move to a different
-  const batched_requests: Array<{ url: string; props: string; cb: Function }> =
-    [];
 
-  // @ts-ignore
-  let client: T = {};
-
-  const proxy_handler = (path: string[]) => ({
-    // @ts-ignore
+  const proxy_handler = (path: string[]): ProxyHandler<any> => ({
     get(target, prop, receiver) {
       if (prop === "query") {
         if (is_ready) {
+          /**
+           * the real client is now ready so we can return the function which will be used for the
+           * .query() call
+           * */
           // @ts-ignore
           return [...path].reduce((acc, p) => acc[p], client);
         } else {
+          /**
+           * the real client is not ready yet so we return a function which return a promise that will be resolved
+           * only after the client will be ready (when is_ready is true) and that will happen after finishing parsing
+           * the routes returned from calling /slim-rpc-scheme.
+           *
+           * */
           return async (args: any) => {
             return new Promise((resolve) => {
-              // @ts-ignore
               waiters.push(async () => {
                 // @ts-ignore
                 const the_api_call: (a: any) => Promise<any> = [...path].reduce(
@@ -30,7 +35,6 @@ export const create_client = <T>(base_url: string): T => {
                   (acc, p) => acc[p],
                   client
                 );
-                // @ts-ignore
                 const res = await the_api_call(args);
                 resolve(res);
               });
@@ -40,14 +44,15 @@ export const create_client = <T>(base_url: string): T => {
       }
       return new Proxy(
         { [prop]: { __path: [...path, prop] } },
-        proxy_handler([...path, prop])
+        proxy_handler([...path, prop as string])
       );
     },
   });
 
+  const client_proxy: T = new Proxy(client, proxy_handler([]));
+
   const create_api_call = (api_call_key: string) => {
-    // @ts-ignore
-    return async (props) => {
+    return async (props: Object) => {
       const url = `${base_url}/${api_call_key}`;
       const body = JSON.stringify(props);
       const res = await fetch(url, {
@@ -62,31 +67,36 @@ export const create_client = <T>(base_url: string): T => {
     };
   };
 
-  const replace_apply_keys_with_calls = (obj: any) => {
-    for (const key in obj) {
-      if (typeof obj[key] === "string") {
-        obj[key] = create_api_call(obj[key]);
-      } else if (typeof obj[key] === "object" && !Array.isArray(obj[key])) {
-        obj[key] = replace_apply_keys_with_calls(obj[key]);
+  const parse_scheme = <T>(api_scheme: T): T => {
+    for (const key in api_scheme) {
+      if (typeof api_scheme[key] === "string") {
+        // @ts-ignore
+        api_scheme[key] = create_api_call(api_scheme[key]);
+      } else if (
+        typeof api_scheme[key] === "object" &&
+        !Array.isArray(api_scheme[key])
+      ) {
+        api_scheme[key] = parse_scheme(api_scheme[key]);
       }
     }
-    return obj;
+    return api_scheme;
   };
 
-  const parse_scheme = <T>(api_scheme: T): T => {
-    return replace_apply_keys_with_calls(api_scheme);
-  };
-
-  const delay = () => {
-    return new Promise((r) => {
+  const delay = (time: number) => {
+    return new Promise((res) => {
       setTimeout(() => {
-        r("");
-      }, 2000);
+        res("");
+      }, time);
     });
   };
 
-  // @ts-ignore
-  const client_proxy: T = new Proxy(client, proxy_handler([]));
+  /**
+   * this function is calling the slim-rpc server's scheme endpoint
+   * so that it can construct the client rpc in runtime! (mind blowing I know)
+   * the 'waiters' is an array of api calls waiting to be execute while the call for the scheme
+   * was taking place or even before it when there was no client actually to handle it!
+   * (proxy is a sick sick sick mind bending js feature)
+   * */
   (async () => {
     const res = await fetch(base_url + "/slim-rpc-scheme", {
       method: "GET",
@@ -95,8 +105,13 @@ export const create_client = <T>(base_url: string): T => {
       },
     });
     const api_scheme = await res.json();
+    await delay(2000);
     client = parse_scheme(api_scheme);
     is_ready = true;
+    /**
+     * now that the client is ready we can execute all of the waiting calls that where made before
+     * it was ready.
+     * */
     waiters.forEach((fn: Function) => fn());
   })();
 

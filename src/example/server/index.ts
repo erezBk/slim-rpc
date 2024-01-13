@@ -18,7 +18,6 @@ create_rpc_server({
   },
   create_context: async (req) => {
     return {
-      author: "erez",
       user: { id: "1" },
       services: {
         users: async () => {

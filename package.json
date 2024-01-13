@@ -7,6 +7,11 @@
   "types": "lib/cjs/index.d.ts",
   "browser": "lib/esm/client.js",
   "type": "commonjs",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/erezBk/slim-rpc.git"
+  },
   "files": [
     "lib/"
   ],
