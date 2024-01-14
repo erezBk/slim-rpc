@@ -1,5 +1,5 @@
 # Slim-RPC
-
+![Logo](./assets/logo.png)
 - Trpc inspired RPC lib
 - Expects Zod.scheme as input validation
 - e2e intellisense
