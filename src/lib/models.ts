@@ -15,6 +15,8 @@ interface RpcErrorResponse {
   reason?: string;
 }
 
+export type RpcResponse<T> = RpcSuccessResponse<T> | RpcErrorResponse;
+
 export type RpcRouteObject<IN, OUT> = {
   query: (input: IN) => Promise<RpcResponse<OUT>>;
 };
@@ -23,8 +25,6 @@ export type RpcRouter = Record<
   string,
   Record<string, RpcRouteObject<any, any>>
 >;
-
-export type RpcResponse<T> = RpcSuccessResponse<T> | RpcErrorResponse;
 
 export type ValidationResponse =
   | { type: "success" }
