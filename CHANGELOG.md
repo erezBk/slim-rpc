@@ -1,5 +1,11 @@
 # slim-rpc
 
+## 0.0.8
+
+### Patch Changes
+
+- 7b05989: added a logo to the lib
+
 ## 0.0.7
 
 ### Patch Changes
