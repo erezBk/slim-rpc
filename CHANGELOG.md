@@ -1,5 +1,11 @@
 # slim-rpc
 
+## 0.0.7
+
+### Patch Changes
+
+- ddce97d: upgraded readme to a human readable format :)
+
 ## 0.0.4
 
 ### Patch Changes
