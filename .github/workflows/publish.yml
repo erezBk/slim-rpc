@@ -1,8 +1,6 @@
 name: Publish Package to npmjs
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch: branches:[main]
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -15,14 +13,14 @@ jobs:
           registry-url: "https://registry.npmjs.org"
       - name: Install dependencies
         run: npm ci
-      - name: Install Dependencies
+      - name: Build the lib
         run: npm run build
-      - name: Create Release Pull Request or Publish
+      - name: Publish
         id: changesets
         uses: changesets/action@v1
         with:
           version: npx changeset version
-          publish: npx changeset publish
+          publish: npm publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
